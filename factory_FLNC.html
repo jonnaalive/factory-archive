@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FLNC | Fluence Energy - 기업분석</title>
+<style>
+  :root {
+    --bg: #0d1117; --surface: #161b22; --border: #30363d;
+    --text: #e6edf3; --muted: #8b949e; --accent: #58a6ff;
+    --green: #3fb950; --red: #f85149; --yellow: #d29922; --orange: #db6d28;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+
+  /* Header */
+  .header { background: linear-gradient(135deg, #1a1e2e, #0d1117); border-bottom: 1px solid var(--border); padding: 32px 24px; }
+  .header h1 { font-size: 2rem; font-weight: 700; }
+  .header h1 span { color: var(--accent); }
+  .header .subtitle { color: var(--muted); font-size: 0.95rem; margin-top: 4px; }
+  .verdict-bar { display: flex; gap: 12px; margin-top: 16px; flex-wrap: wrap; }
+  .verdict-chip { padding: 6px 16px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; }
+  .chip-wait { background: rgba(210,153,34,0.15); color: var(--yellow); border: 1px solid rgba(210,153,34,0.3); }
+  .chip-ready { background: rgba(63,185,80,0.15); color: var(--green); border: 1px solid rgba(63,185,80,0.3); }
+  .chip-price { background: rgba(88,166,255,0.1); color: var(--accent); border: 1px solid rgba(88,166,255,0.2); }
+
+  /* Tabs */
+  .tab-bar { display: flex; gap: 0; border-bottom: 1px solid var(--border); background: var(--surface); overflow-x: auto; position: sticky; top: 0; z-index: 100; }
+  .tab-btn { padding: 12px 20px; background: none; border: none; color: var(--muted); cursor: pointer; font-size: 0.9rem; white-space: nowrap; border-bottom: 2px solid transparent; transition: all 0.2s; }
+  .tab-btn:hover { color: var(--text); background: rgba(255,255,255,0.03); }
+  .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .tab-content { display: none; padding: 24px; max-width: 1100px; margin: 0 auto; }
+  .tab-content.active { display: block; }
+
+  /* Cards */
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 20px; margin-bottom: 16px; }
+  .card h3 { font-size: 1.1rem; margin-bottom: 12px; color: var(--accent); }
+  .card h4 { font-size: 0.95rem; margin: 16px 0 8px; color: var(--text); }
+
+  /* Tables */
+  table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+  th, td { padding: 8px 12px; border-bottom: 1px solid var(--border); text-align: left; }
+  th { background: rgba(255,255,255,0.03); color: var(--muted); font-weight: 600; position: sticky; top: 0; }
+  tr:hover { background: rgba(88,166,255,0.04); }
+  .num { text-align: right; font-variant-numeric: tabular-nums; }
+  .pos { color: var(--green); } .neg { color: var(--red); } .warn { color: var(--yellow); }
+
+  /* Collapsible */
+  details { margin-bottom: 12px; }
+  summary { cursor: pointer; padding: 10px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; font-weight: 600; font-size: 0.95rem; }
+  summary:hover { background: rgba(255,255,255,0.03); }
+  details[open] summary { border-radius: 6px 6px 0 0; border-bottom: none; }
+  details > div { padding: 16px; border: 1px solid var(--border); border-top: none; border-radius: 0 0 6px 6px; background: var(--surface); }
+
+  /* Value chain */
+  .chain { display: flex; align-items: center; gap: 0; flex-wrap: wrap; margin: 12px 0; }
+  .chain-node { background: rgba(88,166,255,0.1); border: 1px solid rgba(88,166,255,0.3); padding: 8px 14px; border-radius: 6px; font-size: 0.82rem; }
+  .chain-node.highlight { background: rgba(63,185,80,0.15); border-color: var(--green); color: var(--green); font-weight: 600; }
+  .chain-arrow { color: var(--muted); font-size: 1.2rem; margin: 0 6px; }
+
+  /* Scenario matrix */
+  .scenario-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin: 12px 0; }
+  .scenario-card { padding: 16px; border-radius: 8px; border: 1px solid var(--border); }
+  .scenario-card.bull { background: rgba(63,185,80,0.08); border-color: rgba(63,185,80,0.3); }
+  .scenario-card.base { background: rgba(88,166,255,0.08); border-color: rgba(88,166,255,0.3); }
+  .scenario-card.bear { background: rgba(248,81,73,0.08); border-color: rgba(248,81,73,0.3); }
+  .scenario-card .label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; font-weight: 600; }
+  .scenario-card .price { font-size: 1.5rem; font-weight: 700; }
+
+  /* Bar chart */
+  .bar-chart { margin: 12px 0; }
+  .bar-row { display: flex; align-items: center; margin-bottom: 6px; font-size: 0.85rem; }
+  .bar-label { width: 90px; text-align: right; padding-right: 10px; color: var(--muted); flex-shrink: 0; }
+  .bar-track { flex: 1; height: 24px; background: rgba(255,255,255,0.03); border-radius: 4px; position: relative; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 4px; display: flex; align-items: center; padding: 0 8px; font-size: 0.78rem; font-weight: 600; transition: width 0.8s ease; }
+  .bar-value { width: 80px; text-align: right; padding-left: 8px; font-variant-numeric: tabular-nums; flex-shrink: 0; }
+
+  /* Timeline */
+  .timeline { position: relative; padding-left: 24px; border-left: 2px solid var(--border); margin: 16px 0 16px 12px; }
+  .timeline-item { position: relative; padding-bottom: 20px; }
+  .timeline-item::before { content: ''; position: absolute; left: -29px; top: 4px; width: 10px; height: 10px; background: var(--accent); border-radius: 50%; border: 2px solid var(--bg); }
+  .timeline-item.highlight::before { background: var(--green); box-shadow: 0 0 8px rgba(63,185,80,0.5); }
+  .timeline-date { font-size: 0.78rem; color: var(--muted); }
+  .timeline-text { font-size: 0.9rem; margin-top: 2px; }
+
+  /* KPI row */
+  .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 16px 0; }
+  .kpi { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px; text-align: center; }
+  .kpi .value { font-size: 1.4rem; font-weight: 700; }
+  .kpi .label { font-size: 0.78rem; color: var(--muted); margin-top: 4px; }
+
+  /* Waterfall mini */
+  .wave-visual { display: flex; align-items: flex-end; gap: 4px; height: 180px; margin: 16px 0; padding: 0 8px; }
+  .wave-bar { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; flex: 1; }
+  .wave-bar .bar { width: 100%; border-radius: 4px 4px 0 0; transition: height 0.6s ease; min-height: 4px; }
+  .wave-bar .wlabel { font-size: 0.7rem; color: var(--muted); margin-top: 4px; text-align: center; }
+  .wave-bar .wprice { font-size: 0.72rem; font-weight: 600; margin-bottom: 4px; }
+
+  /* Update banner */
+  .update-banner { background: linear-gradient(90deg, rgba(88,166,255,0.1), rgba(63,185,80,0.1)); border: 1px solid rgba(88,166,255,0.2); border-radius: 8px; padding: 16px 20px; margin-bottom: 16px; }
+  .update-banner .date { font-size: 0.8rem; color: var(--accent); font-weight: 600; }
+  .update-banner .title { font-size: 1rem; font-weight: 600; margin-top: 4px; }
+
+  /* Toggle */
+  .toggle-group { display: flex; gap: 8px; margin-bottom: 16px; }
+  .toggle-btn { padding: 6px 14px; border-radius: 6px; border: 1px solid var(--border); background: none; color: var(--muted); cursor: pointer; font-size: 0.85rem; }
+  .toggle-btn.active { background: rgba(88,166,255,0.15); color: var(--accent); border-color: var(--accent); }
+
+  @media (max-width: 768px) {
+    .header h1 { font-size: 1.4rem; }
+    .tab-btn { padding: 10px 14px; font-size: 0.82rem; }
+    .tab-content { padding: 16px; }
+    .kpi-row { grid-template-columns: repeat(2, 1fr); }
+    .scenario-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <h1><span>FLNC</span> | Fluence Energy</h1>
+  <div class="subtitle">에너지 저장 구조적 성장 수혜주, 배터리 과잉공급 리스크 주시 필요 · 생성일 2026-05-05 · 최종 업데이트 2026-05-13</div>
+  <div class="verdict-bar">
+    <span class="verdict-chip chip-ready">READY — 풀백 진입 준비</span>
+    <span class="verdict-chip chip-price">현재가 $21.28</span>
+    <span class="verdict-chip chip-price">확률가중 TP $26.8</span>
+    <span class="verdict-chip chip-wait">숏 41.2%</span>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="switchTab('overview')">산업 & 기업</button>
+  <button class="tab-btn" onclick="switchTab('financials')">재무제표</button>
+  <button class="tab-btn" onclick="switchTab('valuation')">밸류에이션</button>
+  <button class="tab-btn" onclick="switchTab('scenario')">매수 시나리오</button>
+  <button class="tab-btn" onclick="switchTab('elliott')">엘리어트 파동</button>
+  <button class="tab-btn" onclick="switchTab('updates')">업데이트 로그</button>
+</div>
+
+<!-- TAB 1: 산업 & 기업 -->
+<div class="tab-content active" id="tab-overview">
+
+  <div class="kpi-row">
+    <div class="kpi"><div class="value">$5.6B</div><div class="label">백로그 (신기록)</div></div>
+    <div class="kpi"><div class="value">$3.2-3.6B</div><div class="label">FY2026 가이던스</div></div>
+    <div class="kpi"><div class="value">41.2%</div><div class="label">공매도 (Float)</div></div>
+    <div class="kpi"><div class="value">$3.92B</div><div class="label">시가총액</div></div>
+  </div>
+
+  <div class="card">
+    <h3>밸류체인</h3>
+    <div class="chain">
+      <div class="chain-node">배터리 셀 제조<br><small style="color:var(--muted)">CATL, BYD, Samsung SDI</small></div>
+      <span class="chain-arrow">→</span>
+      <div class="chain-node highlight">BESS 시스템 통합<br><small>Fluence, Tesla, Sungrow</small></div>
+      <span class="chain-arrow">→</span>
+      <div class="chain-node">프로젝트 개발/설치<br><small style="color:var(--muted)">유틸리티, IPP</small></div>
+      <span class="chain-arrow">→</span>
+      <div class="chain-node">운영/최적화 SW<br><small style="color:var(--muted)">Fluence IQ, AutoGrid</small></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>TAM / SAM</h3>
+    <div class="bar-chart">
+      <div class="bar-row">
+        <div class="bar-label">글로벌 ESS</div>
+        <div class="bar-track"><div class="bar-fill" style="width:100%;background:var(--accent);">$2,622억 (2034)</div></div>
+        <div class="bar-value">CAGR 10.2%</div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label">미국 BESS</div>
+        <div class="bar-track"><div class="bar-fill" style="width:55%;background:var(--green);">70GWh/35GW (2026E)</div></div>
+        <div class="bar-value">역대 최대</div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label">FLNC SAM</div>
+        <div class="bar-track"><div class="bar-fill" style="width:22%;background:var(--yellow);">$200-300억</div></div>
+        <div class="bar-value">유틸리티급 FTM</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>경쟁 구도</h3>
+    <table>
+      <thead><tr><th>기업</th><th>포지션</th><th>특징</th></tr></thead>
+      <tbody>
+        <tr><td>Tesla Energy (Megapack)</td><td>#1 미국</td><td>수직통합, 자체셀, 가격경쟁력</td></tr>
+        <tr><td>Sungrow</td><td>#1 중국</td><td>원가 우위, 글로벌 확장</td></tr>
+        <tr><td style="color:var(--green);font-weight:600">Fluence (FLNC)</td><td>#2~3 글로벌</td><td>AES/Siemens 백업, SW 차별화</td></tr>
+        <tr><td>BYD</td><td>중국/글로벌</td><td>배터리→시스템 수직통합</td></tr>
+        <tr><td>Wartsila</td><td>유럽</td><td>전통 발전+저장</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>구조적 성장 동인 — "왜 지금?"</h3>
+    <ol style="padding-left:20px;font-size:0.9rem;">
+      <li style="margin-bottom:8px">AI 데이터센터 전력 수요 폭증 → 재생에너지+저장 동반 성장</li>
+      <li style="margin-bottom:8px">IRA/One Big Beautiful Bill Act → 미국 내 BESS 투자 세제 혜택 지속</li>
+      <li style="margin-bottom:8px">전력망 노후화 + 피크 수요 관리 필요성 증대</li>
+      <li style="margin-bottom:8px">재생에너지 간헐성 보완 필수 인프라로 BESS 지위 격상</li>
+      <li>배터리 원가 하락 → 경제성 개선 (리튬 가격 2022년 대비 70%+ 하락)</li>
+    </ol>
+  </div>
+
+  <details>
+    <summary>회사 연혁</summary>
+    <div>
+      <div class="timeline">
+        <div class="timeline-item"><div class="timeline-date">2007</div><div class="timeline-text">AES, 세계 최초 리튬이온 그리드 연결 ESS 개발·시험</div></div>
+        <div class="timeline-item"><div class="timeline-date">2018.01</div><div class="timeline-text">Siemens + AES 50/50 JV로 Fluence 공식 출범</div></div>
+        <div class="timeline-item highlight"><div class="timeline-date">2021.10</div><div class="timeline-text">NASDAQ IPO (FLNC), 공모가 $28, $868M 조달</div></div>
+        <div class="timeline-item"><div class="timeline-date">2022.01</div><div class="timeline-text">Qatar Investment Authority 전략적 투자</div></div>
+        <div class="timeline-item"><div class="timeline-date">2022.08</div><div class="timeline-text">CEO 교체: Julian Nebreda 취임</div></div>
+        <div class="timeline-item"><div class="timeline-date">2023</div><div class="timeline-text">Nispera 인수 (디지털/AI 플랫폼 강화)</div></div>
+        <div class="timeline-item highlight"><div class="timeline-date">2024</div><div class="timeline-text">FY2024 첫 연간 흑자 전환 (NI $23M)</div></div>
+        <div class="timeline-item"><div class="timeline-date">2025.09</div><div class="timeline-text">4GWh LEAG 유럽 딜 수주 (사상 최대), 백로그 $5.3B</div></div>
+        <div class="timeline-item highlight"><div class="timeline-date">2026.02</div><div class="timeline-text">Q1 FY2026: 매출 $475M (+154% YoY), 백로그 $5.5B</div></div>
+        <div class="timeline-item highlight"><div class="timeline-date">2026.05</div><div class="timeline-text">Q2 FY2026: 하이퍼스케일러 2건 MSA 체결, 백로그 $5.6B</div></div>
+      </div>
+    </div>
+  </details>
+
+  <details>
+    <summary>비즈니스 모델 — 3대 세그먼트</summary>
+    <div>
+      <table>
+        <thead><tr><th>세그먼트</th><th>매출 비중</th><th>설명</th><th>특징</th></tr></thead>
+        <tbody>
+          <tr><td>Energy Storage Products</td><td class="num">~85%</td><td>대규모 BESS 시스템</td><td>하드웨어+SW 통합, 프로젝트 기반</td></tr>
+          <tr><td>Services</td><td class="num">~10%</td><td>O&M 서비스</td><td>장기 계약, 반복 매출</td></tr>
+          <tr><td>Digital</td><td class="num">~5%</td><td>Fluence IQ 플랫폼</td><td>ARR $145M 목표, 고마진</td></tr>
+        </tbody>
+      </table>
+      <h4 style="margin-top:16px;">제품 라인업</h4>
+      <table>
+        <thead><tr><th>제품</th><th>용도</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Gridstack Pro</strong></td><td>최신 주력. 대규모 FTM 유틸리티급. 최고 에너지 밀도</td></tr>
+          <tr><td>Gridstack</td><td>기존 FTM 제품. 비용 효율적</td></tr>
+          <tr><td>Ultrastack</td><td>송·배전망 핵심 요구사항 대응</td></tr>
+          <tr><td>Smartstack</td><td>분리형 아키텍처, 임베디드 인텔리전스</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </details>
+
+  <details>
+    <summary>주주 구성 & 경영진</summary>
+    <div>
+      <h4>주주 구성</h4>
+      <table>
+        <thead><tr><th>구분</th><th>비중</th></tr></thead>
+        <tbody>
+          <tr><td>기관투자자</td><td class="num">92.7% (of float)</td></tr>
+          <tr><td>내부자(Insiders)</td><td class="num">15.6%</td></tr>
+          <tr><td class="warn">숏 포지션</td><td class="num warn">41.2% (of float)</td></tr>
+          <tr><td>AES Corporation</td><td class="num">~35%</td></tr>
+          <tr><td>Siemens</td><td class="num">~38.9% → 지분 축소 중</td></tr>
+        </tbody>
+      </table>
+      <h4>핵심 경영진</h4>
+      <table>
+        <thead><tr><th>이름</th><th>직책</th><th>보수</th></tr></thead>
+        <tbody>
+          <tr><td>Julian Nebreda</td><td>CEO (58세, AES 20년+)</td><td class="num">$1.41M</td></tr>
+          <tr><td>Ahmed Pasha</td><td>CFO (56세)</td><td class="num">$760K</td></tr>
+          <tr><td>Peter Williams</td><td>SVP, Product & Supply Chain</td><td class="num">$889K</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </details>
+
+  <div class="card">
+    <h3>투자 아이디어 vs 리스크</h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+      <div>
+        <h4 style="color:var(--green)">Bull Case</h4>
+        <ul style="padding-left:18px;font-size:0.88rem;">
+          <li>AI DC + IRA/OBBBA → 미국 BESS 70GWh+</li>
+          <li>턴어라운드: FY2024 흑자 → FY2026 재성장</li>
+          <li>Fluence IQ ARR $145M+ 고마진 SW 전환</li>
+          <li>Float 41% 숏 → 스퀴즈 트리거 가능</li>
+          <li>하이퍼스케일러 MSA → DC TAM 폭증</li>
+        </ul>
+      </div>
+      <div>
+        <h4 style="color:var(--red)">Risk Points</h4>
+        <ul style="padding-left:18px;font-size:0.88rem;">
+          <li>UBS: EV 배터리 과잉공급 → 마진 압박</li>
+          <li>Tesla/Sungrow/BYD 가격 공세</li>
+          <li>극단적 시즌성 (Q4 편중)</li>
+          <li>중국 배터리셀 의존도</li>
+          <li>아직 지속적 흑자 미달성</li>
+          <li>부채 $391M (FY2025 신규 $400M)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TAB 2: 재무제표 -->
+<div class="tab-content" id="tab-financials">
+
+  <div class="card">
+    <h3>손익계산서 (연간)</h3>
+    <div style="overflow-x:auto;">
+    <table>
+      <thead><tr><th>항목</th><th class="num">FY2022</th><th class="num">FY2023</th><th class="num">FY2024</th><th class="num">FY2025</th></tr></thead>
+      <tbody>
+        <tr><td>Revenue ($M)</td><td class="num">1,199</td><td class="num">2,218</td><td class="num">2,699</td><td class="num">2,263</td></tr>
+        <tr><td>Gross Profit ($M)</td><td class="num neg">-62</td><td class="num">141</td><td class="num">341</td><td class="num">296</td></tr>
+        <tr><td>EBITDA ($M)</td><td class="num neg">-276</td><td class="num neg">-102</td><td class="num pos">41</td><td class="num neg">-17</td></tr>
+        <tr><td>Operating Income ($M)</td><td class="num neg">-284</td><td class="num neg">-113</td><td class="num pos">27</td><td class="num neg">-46</td></tr>
+        <tr><td>Net Income ($M)</td><td class="num neg">-104</td><td class="num neg">-70</td><td class="num pos">23</td><td class="num neg">-48</td></tr>
+        <tr><td>EPS (diluted)</td><td class="num neg">-$1.50</td><td class="num neg">-$0.60</td><td class="num pos">$0.13</td><td class="num neg">-$0.37</td></tr>
+        <tr style="border-top:2px solid var(--border)"><td>GPM</td><td class="num neg">-5.2%</td><td class="num">6.4%</td><td class="num pos">12.6%</td><td class="num pos">13.1%</td></tr>
+        <tr><td>OPM</td><td class="num neg">-23.7%</td><td class="num neg">-5.1%</td><td class="num pos">1.0%</td><td class="num neg">-2.0%</td></tr>
+        <tr><td>NPM</td><td class="num neg">-8.7%</td><td class="num neg">-3.1%</td><td class="num pos">0.9%</td><td class="num neg">-2.1%</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>손익계산서 (분기별)</h3>
+    <div style="overflow-x:auto;">
+    <table>
+      <thead><tr><th>항목</th><th class="num">Q1'25</th><th class="num">Q2'25</th><th class="num">Q3'25</th><th class="num">Q4'25</th><th class="num" style="color:var(--accent)">Q1'26</th><th class="num" style="color:var(--green)">Q2'26</th></tr></thead>
+      <tbody>
+        <tr><td>Revenue ($M)</td><td class="num">187</td><td class="num">432</td><td class="num">603</td><td class="num">1,042</td><td class="num">475</td><td class="num">465</td></tr>
+        <tr><td>Gross Profit ($M)</td><td class="num">21</td><td class="num">43</td><td class="num">89</td><td class="num">143</td><td class="num">23</td><td class="num">—</td></tr>
+        <tr><td>EBITDA ($M)</td><td class="num neg">-49</td><td class="num neg">-39</td><td class="num pos">12</td><td class="num pos">59</td><td class="num neg">-54</td><td class="num neg">-9</td></tr>
+        <tr><td>Net Income ($M)</td><td class="num neg">-41</td><td class="num neg">-31</td><td class="num pos">6</td><td class="num pos">18</td><td class="num neg">-45</td><td class="num neg">—</td></tr>
+        <tr><td>EPS</td><td class="num neg">-$0.32</td><td class="num neg">-$0.24</td><td class="num pos">$0.05</td><td class="num pos">$0.14</td><td class="num neg">-$0.34</td><td class="num neg">-$0.16</td></tr>
+        <tr style="border-top:2px solid var(--border)"><td>GPM</td><td class="num">11.3%</td><td class="num">9.9%</td><td class="num pos">14.8%</td><td class="num pos">13.7%</td><td class="num neg">4.8%</td><td class="num pos">11.1%</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p style="font-size:0.82rem;color:var(--muted);margin-top:8px;">* Q2'26 GPM 11.1% = 가이던스 11-13% 범위 진입, Q1 4.8%에서 V자 회복</p>
+  </div>
+
+  <div class="card">
+    <h3>GPM 추이</h3>
+    <div class="bar-chart">
+      <div class="bar-row"><div class="bar-label">FY2022</div><div class="bar-track"><div class="bar-fill" style="width:2%;background:var(--red);">-5.2%</div></div><div class="bar-value neg">-5.2%</div></div>
+      <div class="bar-row"><div class="bar-label">FY2023</div><div class="bar-track"><div class="bar-fill" style="width:32%;background:var(--yellow);">6.4%</div></div><div class="bar-value">6.4%</div></div>
+      <div class="bar-row"><div class="bar-label">FY2024</div><div class="bar-track"><div class="bar-fill" style="width:63%;background:var(--green);">12.6%</div></div><div class="bar-value pos">12.6%</div></div>
+      <div class="bar-row"><div class="bar-label">FY2025</div><div class="bar-track"><div class="bar-fill" style="width:66%;background:var(--green);">13.1%</div></div><div class="bar-value pos">13.1%</div></div>
+      <div class="bar-row"><div class="bar-label">Q1'26</div><div class="bar-track"><div class="bar-fill" style="width:24%;background:var(--red);">4.8%</div></div><div class="bar-value neg">4.8%</div></div>
+      <div class="bar-row"><div class="bar-label" style="color:var(--green)">Q2'26</div><div class="bar-track"><div class="bar-fill" style="width:56%;background:var(--green);">11.1%</div></div><div class="bar-value pos">11.1%</div></div>
+    </div>
+  </div>
+
+  <details>
+    <summary>현금흐름표 (연간)</summary>
+    <div>
+      <table>
+        <thead><tr><th>항목</th><th class="num">FY2022</th><th class="num">FY2023</th><th class="num">FY2024</th><th class="num">FY2025</th></tr></thead>
+        <tbody>
+          <tr><td>Operating CF ($M)</td><td class="num neg">-282</td><td class="num neg">-112</td><td class="num pos">80</td><td class="num neg">-146</td></tr>
+          <tr><td>CAPEX ($M)</td><td class="num">-8</td><td class="num">-12</td><td class="num">-19</td><td class="num">-30</td></tr>
+          <tr><td>FCF ($M)</td><td class="num neg">-290</td><td class="num neg">-124</td><td class="num pos">61</td><td class="num neg">-175</td></tr>
+          <tr><td>Debt Issuance ($M)</td><td class="num">0</td><td class="num">48</td><td class="num">0</td><td class="num">400</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </details>
+
+  <details>
+    <summary>대차대조표</summary>
+    <div>
+      <table>
+        <thead><tr><th>항목</th><th class="num">FY2022</th><th class="num">FY2023</th><th class="num">FY2024</th><th class="num">FY2025</th><th class="num">Q1'26</th></tr></thead>
+        <tbody>
+          <tr><td>Total Assets ($M)</td><td class="num">1,746</td><td class="num">1,352</td><td class="num">1,902</td><td class="num">2,357</td><td class="num">2,270</td></tr>
+          <tr><td>Cash ($M)</td><td class="num">357</td><td class="num">346</td><td class="num">449</td><td class="num pos">691</td><td class="num">453</td></tr>
+          <tr><td>Total Debt ($M)</td><td class="num">3</td><td class="num">51</td><td class="num">30</td><td class="num warn">391</td><td class="num warn">391</td></tr>
+          <tr><td>Net Debt ($M)</td><td class="num pos">-354</td><td class="num pos">-295</td><td class="num pos">-419</td><td class="num pos">-300</td><td class="num">-62</td></tr>
+          <tr><td>Debt/Equity</td><td class="num">0.4%</td><td class="num">9.2%</td><td class="num">5.0%</td><td class="num warn">71.2%</td><td class="num warn">80.2%</td></tr>
+          <tr><td>Current Ratio</td><td class="num">1.44x</td><td class="num">1.60x</td><td class="num">1.33x</td><td class="num">1.51x</td><td class="num">1.48x</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </details>
+
+  <div class="card">
+    <h3>이상치 분석</h3>
+    <table>
+      <thead><tr><th>이상치</th><th>원인</th><th>판단</th></tr></thead>
+      <tbody>
+        <tr><td>FY2025 매출 -16% YoY</td><td>미국 관세 불확실성 → 프로젝트 일시 중단</td><td class="pos">일회성 (OBBBA 해소 중)</td></tr>
+        <tr><td>FY2025 CAPEX +58%</td><td>애리조나 제조시설, Gridstack Pro 라인</td><td class="warn">FY2026 $35-40M 지속</td></tr>
+        <tr><td>FY2025 부채 +1,188%</td><td>$400M 신규 발행</td><td class="pos">의도적 레버리지, 넷캐시 -$300M</td></tr>
+        <tr><td>Q1'26 GPM 4.8%</td><td>Gridstack Pro 전환 + 시즌성</td><td class="pos">Q2 11.1%로 V자 회복</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- TAB 3: 밸류에이션 -->
+<div class="tab-content" id="tab-valuation">
+
+  <div class="card">
+    <h3>밸류에이션 밴드</h3>
+    <table>
+      <thead><tr><th>지표</th><th class="num">5년 고점</th><th class="num">5년 저점</th><th class="num">현재</th></tr></thead>
+      <tbody>
+        <tr><td>P/S (TTM)</td><td class="num">4.5x</td><td class="num">0.5x</td><td class="num">1.52x</td></tr>
+        <tr><td>EV/Revenue</td><td class="num">3.5x</td><td class="num">0.3x</td><td class="num">0.66x</td></tr>
+        <tr><td>P/B</td><td class="num">8.0x</td><td class="num">1.0x</td><td class="num">4.2x</td></tr>
+        <tr><td>Forward PE</td><td class="num">—</td><td class="num">70x</td><td class="num">70x</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Peer 비교</h3>
+    <div style="overflow-x:auto;">
+    <table>
+      <thead><tr><th>기업</th><th class="num">시총</th><th class="num">P/S</th><th class="num">EV/Rev</th><th class="num">매출성장</th><th class="num">GPM</th><th class="num">OPM</th></tr></thead>
+      <tbody>
+        <tr style="background:rgba(88,166,255,0.06)"><td style="color:var(--green);font-weight:600">FLNC</td><td class="num">$3.9B</td><td class="num">1.52x</td><td class="num">0.66x</td><td class="num pos">+54%</td><td class="num">4.8~13.7%</td><td class="num neg">-2.0%</td></tr>
+        <tr><td>EOSE</td><td class="num">$1.9B</td><td class="num warn">16.7x</td><td class="num">N/A</td><td class="num pos">+200%+</td><td class="num neg">음수</td><td class="num neg">음수</td></tr>
+        <tr><td>Tesla Energy</td><td class="num">—</td><td class="num">N/A</td><td class="num">N/A</td><td class="num pos">+67%</td><td class="num pos">~25%</td><td class="num">N/A</td></tr>
+        <tr><td>Sungrow</td><td class="num">~$15B</td><td class="num">~1.5x</td><td class="num">~1.2x</td><td class="num">+20%</td><td class="num pos">~25%</td><td class="num pos">~12%</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>증권사 TP</h3>
+    <table>
+      <thead><tr><th>증권사</th><th>등급</th><th class="num">TP ($)</th><th>변동</th><th>날짜</th></tr></thead>
+      <tbody>
+        <tr><td>Roth MKM</td><td class="pos">Buy ↑</td><td class="num pos">$26</td><td>$13→$26</td><td>2026.05.08</td></tr>
+        <tr><td>Goldman Sachs</td><td class="pos">Buy</td><td class="num">$22</td><td>$20→$22</td><td>2026.05.08</td></tr>
+        <tr><td>Susquehanna</td><td class="pos">Positive</td><td class="num">$25</td><td>$23→$25</td><td>2026.05.08</td></tr>
+        <tr><td>Jefferies</td><td class="pos">Buy</td><td class="num">$24</td><td>↓$25→$24</td><td>2026.02.10</td></tr>
+        <tr><td>Canaccord</td><td class="pos">Buy</td><td class="num">$25</td><td>↑$10→$25</td><td>2025.11.26</td></tr>
+        <tr><td>BofA</td><td>Neutral</td><td class="num">$25</td><td>↑$17→$25</td><td>2025.12.09</td></tr>
+        <tr><td>JP Morgan</td><td>Neutral</td><td class="num">$17</td><td>$13→$17</td><td>2026.05.08</td></tr>
+        <tr><td>Barclays</td><td>Equal-Weight</td><td class="num">$16</td><td>↓$20→$16</td><td>2026.04.13</td></tr>
+        <tr><td>Citigroup</td><td>Neutral</td><td class="num">$15</td><td>↓$20→$15</td><td>2026.04.21</td></tr>
+        <tr><td>UBS</td><td class="neg">Sell</td><td class="num neg">$8</td><td>↓$22→$8</td><td>2026.04.17</td></tr>
+      </tbody>
+    </table>
+    <p style="font-size:0.85rem;color:var(--muted);margin-top:8px;">컨센서스: Buy 4, Hold 10, Sell 3 | 평균 TP $17.4 | 중앙값 $15</p>
+  </div>
+
+  <div class="card">
+    <h3>실적 전망 (Bull / Base / Bear)</h3>
+    <div style="overflow-x:auto;">
+    <table>
+      <thead><tr><th></th><th class="num" style="color:var(--red)">Bear</th><th class="num" style="color:var(--accent)">Base</th><th class="num" style="color:var(--green)">Bull</th></tr></thead>
+      <tbody>
+        <tr><td colspan="4" style="color:var(--muted);font-size:0.82rem;padding-top:12px">FY2026E</td></tr>
+        <tr><td>Revenue ($B)</td><td class="num">3.0</td><td class="num">3.4</td><td class="num">3.6</td></tr>
+        <tr><td>Net Income ($M)</td><td class="num neg">-70</td><td class="num">0~10</td><td class="num pos">30</td></tr>
+        <tr><td colspan="4" style="color:var(--muted);font-size:0.82rem;padding-top:12px">FY2027E (Re-rated)</td></tr>
+        <tr><td>Revenue ($B)</td><td class="num">3.5</td><td class="num">4.8</td><td class="num">5.0+</td></tr>
+        <tr><td>Net Income ($M)</td><td class="num neg">30</td><td class="num pos">170</td><td class="num pos">250</td></tr>
+        <tr><td colspan="4" style="color:var(--muted);font-size:0.82rem;padding-top:12px">FY2028E</td></tr>
+        <tr><td>Revenue ($B)</td><td class="num">4.0</td><td class="num">5.2</td><td class="num">6.5</td></tr>
+        <tr><td>Net Income ($M)</td><td class="num">20</td><td class="num pos">165</td><td class="num pos">335</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+</div>
+
+<!-- TAB 4: 매수 시나리오 -->
+<div class="tab-content" id="tab-scenario">
+
+  <div class="card" style="background:linear-gradient(135deg,rgba(88,166,255,0.08),rgba(63,185,80,0.05));border-color:rgba(88,166,255,0.3);">
+    <h3>현재 판정</h3>
+    <div class="kpi-row">
+      <div class="kpi" style="border-color:var(--green)"><div class="value" style="color:var(--green)">READY</div><div class="label">풀백 진입 준비</div></div>
+      <div class="kpi"><div class="value">$21.28</div><div class="label">현재가 (5/13)</div></div>
+      <div class="kpi"><div class="value">$26.8</div><div class="label">확률가중 TP</div></div>
+      <div class="kpi"><div class="value">+26%</div><div class="label">TP 대비 업사이드</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>시나리오별 R:R ($24.16 → $21.28 풀백 반영)</h3>
+    <div class="scenario-grid">
+      <div class="scenario-card bull">
+        <div class="label" style="color:var(--green)">Re-rated Bull (25%)</div>
+        <div class="price" style="color:var(--green)">$47.6</div>
+        <div style="font-size:0.85rem;margin-top:4px;">FY2027E NI $250M × PE 35x</div>
+        <div style="font-size:0.85rem;color:var(--green)">+124% upside</div>
+      </div>
+      <div class="scenario-card base">
+        <div class="label" style="color:var(--accent)">Re-rated Base (50%)</div>
+        <div class="price" style="color:var(--accent)">$27.7</div>
+        <div style="font-size:0.85rem;margin-top:4px;">FY2027E NI $170M × PE 30x</div>
+        <div style="font-size:0.85rem;color:var(--accent)">+30% upside</div>
+      </div>
+      <div class="scenario-card bear">
+        <div class="label" style="color:var(--red)">Bear (25%)</div>
+        <div class="price" style="color:var(--red)">$4.1</div>
+        <div style="font-size:0.85rem;margin-top:4px;">리레이팅 실패 시</div>
+        <div style="font-size:0.85rem;color:var(--red)">-81% downside</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>3단계 분할 매수 전략 (5/13 수정)</h3>
+    <table>
+      <thead><tr><th>존</th><th class="num">가격대</th><th class="num">비중</th><th>근거</th><th class="num">R:R ($30)</th></tr></thead>
+      <tbody>
+        <tr style="background:rgba(210,153,34,0.08)">
+          <td><strong>1차 (현재 근접)</strong></td>
+          <td class="num">$20~21</td>
+          <td class="num">30%</td>
+          <td>오퍼링 가격 $21 = 기관 앵커</td>
+          <td class="num">1.5:1</td>
+        </tr>
+        <tr style="background:rgba(63,185,80,0.08)">
+          <td><strong>2차 (핵심)</strong></td>
+          <td class="num">$17~19</td>
+          <td class="num">50%</td>
+          <td>W5 sub-wave 2, 갭 $19.2 지지</td>
+          <td class="num pos">2.2:1</td>
+        </tr>
+        <tr style="background:rgba(88,166,255,0.08)">
+          <td><strong>3차 (적극)</strong></td>
+          <td class="num">$14~16</td>
+          <td class="num">20%</td>
+          <td>38.2% 되돌림, 50일선 $14.98</td>
+          <td class="num pos">4.0:1</td>
+        </tr>
+        <tr style="border-top:2px solid var(--red)">
+          <td class="neg"><strong>손절</strong></td>
+          <td class="num neg">$13.50 이하</td>
+          <td class="num">—</td>
+          <td class="neg">W5 시작점 $11.34 방어 마지노선</td>
+          <td class="num">—</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>오퍼링 소화 타임라인</h3>
+    <div class="timeline">
+      <div class="timeline-item highlight"><div class="timeline-date">5/13 (오늘)</div><div class="timeline-text">가격 결정 <strong>$21.00/주</strong> — 2,000만주 + 300만주 옵션</div></div>
+      <div class="timeline-item"><div class="timeline-date">5/15</div><div class="timeline-text">클로징 (물량 정식 출회)</div></div>
+      <div class="timeline-item"><div class="timeline-date">5/15~5/20</div><div class="timeline-text">오퍼링 소화 기간 (매도 압력 피크)</div></div>
+      <div class="timeline-item highlight"><div class="timeline-date">5/20 이후</div><div class="timeline-text">수급 정상화 → 방향성 확인</div></div>
+    </div>
+    <p style="font-size:0.85rem;color:var(--muted);">핵심: 신주 발행 아님 → 지분 희석 없음. Siemens 등 대주주 포트폴리오 리밸런싱.</p>
+  </div>
+
+  <div class="card">
+    <h3>매수 전환 조건 & 킬 크라이테리아</h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+      <div>
+        <h4 style="color:var(--green)">매수 전환 조건</h4>
+        <ol style="padding-left:18px;font-size:0.88rem;">
+          <li>Q2 FY2026 Adj GPM 8%+ ✅ (11.1%)</li>
+          <li>FY2026 가이던스 유지 ✅</li>
+          <li>수주 모멘텀 $700M+/분기 ✅</li>
+          <li>$20 이하 진입 시 가격 메리트</li>
+        </ol>
+      </div>
+      <div>
+        <h4 style="color:var(--red)">킬 크라이테리아</h4>
+        <ol style="padding-left:18px;font-size:0.88rem;">
+          <li>FY2026 가이던스 하향 ($3.0B 이하)</li>
+          <li>연간 Adj GPM 10% 미만 고착화</li>
+          <li>백로그 감소 (수주 취소 or 경쟁 패배)</li>
+          <li>AES/Siemens 대규모 매각</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>모니터링 항목</h3>
+    <table>
+      <thead><tr><th>지표</th><th>주기</th><th>트리거</th></tr></thead>
+      <tbody>
+        <tr><td>분기 Adj GPM</td><td>분기별</td><td class="neg">8% 이하 2분기 연속 → 위험</td></tr>
+        <tr><td>수주 백로그</td><td>분기별</td><td class="warn">$5B 이하 하락 → 경고</td></tr>
+        <tr><td>미국 BESS 정책</td><td>수시</td><td class="neg">IRA/OBBBA 혜택 축소</td></tr>
+        <tr><td>배터리 가격 (LFP)</td><td>월간</td><td class="warn">kWh당 급락 → 마진 압박</td></tr>
+        <tr><td>Tesla Megapack 수주</td><td>분기별</td><td class="neg">FLNC 대비 점유율 확대</td></tr>
+        <tr><td>DC MSA 주문 전환</td><td>분기별</td><td class="pos">Q3 FY2026 첫 주문 예상</td></tr>
+        <tr><td>숏 커버링 진행률</td><td>격주</td><td class="pos">41% → 20% 이하 시 수급 정상화</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- TAB 5: 엘리어트 파동 -->
+<div class="tab-content" id="tab-elliott">
+
+  <div class="card">
+    <h3>주요 가격 포인트</h3>
+    <div class="kpi-row">
+      <div class="kpi"><div class="value neg">$3.46</div><div class="label">ATL (Apr 2025)</div></div>
+      <div class="kpi"><div class="value">$39.40</div><div class="label">ATH (Nov 2021)</div></div>
+      <div class="kpi"><div class="value">$33.51</div><div class="label">52주 고점</div></div>
+      <div class="kpi"><div class="value">$21.28</div><div class="label">현재가</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>선호 카운트 (Bullish) — $3.46에서 신규 임펄스</h3>
+    <div class="wave-visual">
+      <div class="wave-bar"><div class="wprice" style="color:var(--muted)">$3.46</div><div class="bar" style="height:10px;background:var(--border);"></div><div class="wlabel">Start</div></div>
+      <div class="wave-bar"><div class="wprice" style="color:var(--green)">$10.35</div><div class="bar" style="height:50px;background:var(--green);"></div><div class="wlabel">W1<br>+199%</div></div>
+      <div class="wave-bar"><div class="wprice" style="color:var(--red)">$6.60</div><div class="bar" style="height:25px;background:var(--red);"></div><div class="wlabel">W2<br>61.8%</div></div>
+      <div class="wave-bar"><div class="wprice" style="color:var(--green)">$33.51</div><div class="bar" style="height:170px;background:linear-gradient(to top,var(--green),var(--accent));"></div><div class="wlabel">W3<br>+408%</div></div>
+      <div class="wave-bar"><div class="wprice" style="color:var(--red)">$11.34</div><div class="bar" style="height:40px;background:var(--red);"></div><div class="wlabel">W4<br>-82%</div></div>
+      <div class="wave-bar"><div class="wprice" style="color:var(--accent)">$24.16</div><div class="bar" style="height:75px;background:linear-gradient(to top,var(--accent),var(--green));opacity:0.7;border:2px dashed var(--accent);"></div><div class="wlabel">W5<br>진행중</div></div>
+    </div>
+    <p style="font-size:0.85rem;color:var(--muted);margin-top:8px;">W2=61.8% 단순 / W4=82% 복잡 → 교대법칙 충족</p>
+  </div>
+
+  <div class="card">
+    <h3>Wave 5 피보나치 목표가</h3>
+    <table>
+      <thead><tr><th>산출 방식</th><th class="num">목표가</th><th class="num">현재 대비</th><th>상태</th></tr></thead>
+      <tbody>
+        <tr><td>W5 = W1 ($6.89)</td><td class="num">$18.23</td><td class="num">—</td><td class="pos">✅ 달성</td></tr>
+        <tr><td>W5 = 1.618 × W1</td><td class="num">$22.49</td><td class="num">—</td><td class="pos">✅ 달성</td></tr>
+        <tr style="background:rgba(88,166,255,0.08)"><td><strong>W5 = 0.618 × (W1+W3)</strong></td><td class="num" style="color:var(--accent)"><strong>$32.22</strong></td><td class="num pos">+51%</td><td style="color:var(--accent)"><strong>다음 목표</strong></td></tr>
+        <tr><td>W5 = W3 ($26.91)</td><td class="num">$38.25</td><td class="num pos">+80%</td><td>풀 연장 시</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Wave 4 완성 구조 (ABC Zigzag)</h3>
+    <div class="timeline">
+      <div class="timeline-item"><div class="timeline-date">a파: $33.51 → $13.81</div><div class="timeline-text">-$19.70 (Mar 2, 2026)</div></div>
+      <div class="timeline-item"><div class="timeline-date">b파: $13.81 → $18.21</div><div class="timeline-text">+$4.40 (22% retrace, 약한 b파)</div></div>
+      <div class="timeline-item highlight"><div class="timeline-date">c파: $18.21 → $11.34</div><div class="timeline-text">-$6.87 → Wave 4 바닥 확정 (Apr 27)</div></div>
+    </div>
+  </div>
+
+  <details>
+    <summary>대안 카운트 (Bearish) — $33.51이 B파 고점</summary>
+    <div>
+      <p style="font-size:0.9rem;margin-bottom:12px;">$31.32(2023) → $3.46 → $33.51 → ? 구조가 <strong>Expanded Flat ABC</strong>인 경우:</p>
+      <table>
+        <thead><tr><th>파동</th><th>범위</th><th>설명</th></tr></thead>
+        <tbody>
+          <tr><td>A파</td><td>$31.32 → $3.46</td><td>-$27.86</td></tr>
+          <tr><td>B파</td><td>$3.46 → $33.51</td><td>+$30.05 (>100% = expanded)</td></tr>
+          <tr><td class="neg">C파</td><td>$33.51 → ???</td><td class="neg">C=A 시 $5.65</td></tr>
+        </tbody>
+      </table>
+      <p style="font-size:0.85rem;color:var(--muted);margin-top:8px;">확인 조건: $6.60 (W2 저점) 이탈 필요. 현재는 열어두되 미확인.</p>
+    </div>
+  </details>
+
+  <div class="card" style="border-color:var(--accent);">
+    <h3>엘리어트 기반 실전 트레이딩</h3>
+    <table>
+      <thead><tr><th>항목</th><th class="num">가격</th><th>근거</th></tr></thead>
+      <tbody>
+        <tr style="background:rgba(63,185,80,0.08)"><td>1차 매수존 (풀백)</td><td class="num pos">$18~20</td><td>W5 sub-wave 2, 갭 $19.2 지지</td></tr>
+        <tr style="background:rgba(63,185,80,0.12)"><td>2차 매수존 (깊은 조정)</td><td class="num pos">$15~17</td><td>38.2% 되돌림, 갭 하단</td></tr>
+        <tr><td>1차 목표</td><td class="num">$30~33</td><td>W5 확장 0.618×(W1+W3)</td></tr>
+        <tr><td>2차 목표</td><td class="num">$35~40</td><td>풀 연장 + DC MSA 반영</td></tr>
+        <tr style="background:rgba(248,81,73,0.08)"><td class="neg">손절</td><td class="num neg">$13.50</td><td class="neg">W5 시작점 방어 실패</td></tr>
+      </tbody>
+    </table>
+    <p style="font-size:0.9rem;margin-top:12px;"><strong>R:R (매수존 $19):</strong> ($30-$19)/($19-$14) = <span style="color:var(--green);font-weight:600">2.2:1</span></p>
+  </div>
+</div>
+
+<!-- TAB 6: 업데이트 로그 -->
+<div class="tab-content" id="tab-updates">
+
+  <div class="update-banner" style="border-color:rgba(63,185,80,0.3);background:linear-gradient(90deg,rgba(63,185,80,0.1),rgba(88,166,255,0.05));">
+    <div class="date">2026-05-13</div>
+    <div class="title">대주주 Secondary Offering + 풀백 진입 분석</div>
+    <ul style="font-size:0.88rem;padding-left:18px;margin-top:8px;">
+      <li>Siemens(38.9%)/AES/Qatar 대주주 2,000만주 2차 공모 → $21.00 가격 결정</li>
+      <li>신주 발행 아님 → 지분 희석 없음, 회사 재무 영향 제로</li>
+      <li>주가 $24.16 → $21.28 (-12%), factory 1차 매수존 상단 도달</li>
+      <li>숏 비율 37.3% → 41.2% 증가</li>
+      <li>판정: WAIT → <strong>READY</strong> (풀백 진입 준비)</li>
+      <li>3단계 분할 매수 전략 수립: 1차 $20-21 (30%), 2차 $17-19 (50%), 3차 $14-16 (20%)</li>
+    </ul>
+  </div>
+
+  <div class="update-banner">
+    <div class="date">2026-05-10</div>
+    <div class="title">리레이팅 베이스 케이스 재평가</div>
+    <ul style="font-size:0.88rem;padding-left:18px;margin-top:8px;">
+      <li>DC TAM 확장으로 Base NI $95M → $170M 재설정</li>
+      <li>$12.33 → $24.16 = +96% (3거래일, 숏스퀴즈)</li>
+      <li>확률가중 목표가 $26.8 (+11%)</li>
+      <li>Re-rated Base 적정가 $28-32 (PE 30-35x)</li>
+      <li>현재가는 Re-rated Base 하단 = "비싸지는 않지만 싸지도 않다"</li>
+    </ul>
+  </div>
+
+  <div class="update-banner">
+    <div class="date">2026-05-09</div>
+    <div class="title">Q2 FY2026 실적 + 하이퍼스케일러 MSA (게임 체인저)</div>
+    <ul style="font-size:0.88rem;padding-left:18px;margin-top:8px;">
+      <li>매출 $465M (miss), GPM 11.1% (V자 회복), 백로그 $5.6B (신기록)</li>
+      <li><strong>하이퍼스케일러 2건 MSA 체결</strong> — 26개 벤더 중 선정</li>
+      <li>DC 파이프라인 ~12 GWh, Q3 첫 주문 예상</li>
+      <li>Roth MKM: Neutral → Buy 업그레이드, TP $26</li>
+      <li>숏스퀴즈 발생: $12.33 → $24.16 (+96%)</li>
+      <li>Wave 4 완성 확인, Wave 5 폭발적 시작</li>
+    </ul>
+  </div>
+
+  <div class="update-banner" style="opacity:0.7;">
+    <div class="date">2026-05-05</div>
+    <div class="title">초기 기업 분석 (Factory 생성)</div>
+    <ul style="font-size:0.88rem;padding-left:18px;margin-top:8px;">
+      <li>산업개요, 기업개요, BM, 재무제표, 밸류에이션, 매수 시나리오 수립</li>
+      <li>판정: WAIT (Q2 실적 확인 대기)</li>
+      <li>적정 매수가 $9~12, 확신도 ★★★☆☆</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>컨콜 요약 (최근 4분기)</h3>
+    <details>
+      <summary>Q2 FY2026 (2026-05-07)</summary>
+      <div>
+        <ul style="font-size:0.88rem;padding-left:18px;">
+          <li>매출 $465M (-24% miss), Adj GPM 11.1% (beat)</li>
+          <li>하이퍼스케일러 2건 MSA 체결 (DC 파이프라인 ~12 GWh)</li>
+          <li>백로그 $5.6B (신기록), YTD 수주 ~$2B</li>
+          <li>FY2026 가이던스 $3.2-3.6B 유지</li>
+        </ul>
+      </div>
+    </details>
+    <details>
+      <summary>Q1 FY2026 (2026-02-05)</summary>
+      <div>
+        <ul style="font-size:0.88rem;padding-left:18px;">
+          <li>매출 $475M (+154% YoY), Adj GPM 5.6%</li>
+          <li>수주 $750M+ (미국 $500M+)</li>
+          <li>백로그 $5.5B (사상 최대), 유동성 $1.1B</li>
+          <li>OBBBA 효과 → 미국 수주 활발</li>
+        </ul>
+      </div>
+    </details>
+    <details>
+      <summary>Q4 FY2025 (2025-11-25)</summary>
+      <div>
+        <ul style="font-size:0.88rem;padding-left:18px;">
+          <li>매출 $1,042M (역대 최대 분기), Adj GPM 13.7%</li>
+          <li>신규 수주 $1.4B+, 백로그 $5.3B</li>
+          <li>유럽 LEAG 4GWh 딜 (사상 최대 단일 계약)</li>
+          <li>FY2026 가이던스: 매출 $3.2-3.6B</li>
+        </ul>
+      </div>
+    </details>
+    <details>
+      <summary>Q3 FY2025 (2025-08-12)</summary>
+      <div>
+        <ul style="font-size:0.88rem;padding-left:18px;">
+          <li>매출 $603M (+24.7% YoY), Adj GPM 15.4%</li>
+          <li>Smartstack 첫 계약 체결</li>
+          <li>데이터센터 파이프라인 확대 언급</li>
+        </ul>
+      </div>
+    </details>
+  </div>
+</div>
+
+<div style="text-align:center;padding:24px;color:var(--muted);font-size:0.8rem;border-top:1px solid var(--border);">
+  FLNC Factory Analysis | Generated 2026-05-13 | 출처: Yahoo Finance, Fluence IR, SEC Filings, SeekingAlpha, 증권사 리포트
+</div>
+
+<script>
+function switchTab(id) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  event.target.classList.add('active');
+}
+</script>
+</body>
+</html>
