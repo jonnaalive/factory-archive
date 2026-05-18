@@ -1,828 +1,666 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PKE — 항공+방산 이중 수혜 니치 복합소재</title>
-<style>
-  :root {
-    --bg: #0f1117;
-    --surface: #1a1d27;
-    --surface2: #232734;
-    --border: #2e3346;
-    --text: #e2e4ea;
-    --text-muted: #8b90a0;
-    --accent: #6c9cff;
-    --accent2: #44d7b6;
-    --red: #ff6b6b;
-    --orange: #ffa94d;
-    --yellow: #ffd43b;
-    --green: #51cf66;
-  }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body {
-    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    line-height: 1.7;
-    font-size: 15px;
-  }
-  .container { max-width: 920px; margin: 0 auto; padding: 24px 20px 80px; }
-
-  .hero {
-    background: linear-gradient(135deg, #1e2a3a 0%, #0f1117 100%);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 48px 40px;
-    margin-bottom: 32px;
-    position: relative;
-    overflow: hidden;
-  }
-  .hero::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    right: -20%;
-    width: 400px;
-    height: 400px;
-    background: radial-gradient(circle, rgba(68,215,182,0.08) 0%, transparent 70%);
-    pointer-events: none;
-  }
-  .hero .ticker {
-    display: inline-block;
-    background: var(--accent2);
-    color: #0f1117;
-    font-weight: 800;
-    font-size: 13px;
-    padding: 4px 12px;
-    border-radius: 6px;
-    letter-spacing: 1px;
-    margin-bottom: 16px;
-  }
-  .hero h1 {
-    font-size: 26px;
-    font-weight: 800;
-    line-height: 1.35;
-    margin-bottom: 12px;
-    color: #fff;
-  }
-  .hero .subtitle {
-    color: var(--text-muted);
-    font-size: 14px;
-  }
-  .hero .meta-row {
-    display: flex;
-    gap: 24px;
-    margin-top: 20px;
-    flex-wrap: wrap;
-  }
-  .hero .meta-item { display: flex; flex-direction: column; gap: 2px; }
-  .hero .meta-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
-  .hero .meta-value { font-size: 18px; font-weight: 700; color: #fff; }
-  .hero .meta-value.wait { color: var(--orange); }
-  .stars { color: var(--yellow); letter-spacing: 2px; }
-
-  .verdict-box {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 28px 32px;
-    margin-bottom: 32px;
-    font-family: 'JetBrains Mono', 'Fira Code', monospace;
-    font-size: 13px;
-    line-height: 1.8;
-    white-space: pre-line;
-    color: var(--text-muted);
-  }
-  .verdict-box .hl { color: #fff; font-weight: 700; }
-  .verdict-box .green { color: var(--green); }
-  .verdict-box .red { color: var(--red); }
-  .verdict-box .orange { color: var(--orange); }
-  .verdict-box .accent { color: var(--accent); }
-  .verdict-box .line { border-top: 1px solid var(--border); margin: 8px 0; }
-
-  .toc {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 24px 28px;
-    margin-bottom: 20px;
-  }
-  .toc-title { font-size: 13px; font-weight: 700; color: var(--text-muted); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 1px; }
-  .toc a { color: var(--text-muted); text-decoration: none; font-size: 14px; display: block; padding: 4px 0; transition: color 0.2s; }
-  .toc a:hover { color: var(--accent); }
-  .toc a .num { color: var(--accent2); font-weight: 700; margin-right: 8px; font-family: monospace; }
-
-  .section {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 32px;
-    margin-bottom: 20px;
-  }
-  .section-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; color: var(--accent2); margin-bottom: 4px; }
-  h2 { font-size: 22px; font-weight: 800; margin-bottom: 20px; color: #fff; }
-  h3 { font-size: 17px; font-weight: 700; margin: 28px 0 12px; color: #fff; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
-  h3:first-child { margin-top: 0; }
-  h4 { font-size: 15px; font-weight: 700; margin: 20px 0 8px; color: var(--accent2); }
-  p { margin-bottom: 12px; }
-  strong { color: #fff; font-weight: 700; }
-  em { color: var(--accent); font-style: normal; }
-
-  .table-wrap { overflow-x: auto; margin: 16px 0; }
-  table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  th { background: var(--surface2); color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px; padding: 10px 12px; text-align: left; border-bottom: 2px solid var(--border); white-space: nowrap; }
-  td { padding: 9px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
-  tr:last-child td { border-bottom: none; }
-  tr:hover td { background: rgba(108,156,255,0.04); }
-  td:first-child { font-weight: 600; color: #fff; }
-  tr.hl td { background: rgba(68,215,182,0.08); }
-  tr.hl-green td { background: rgba(68,215,182,0.08); }
-
-  pre, .code-block {
-    background: #0d0f14;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 16px 20px;
-    font-family: 'JetBrains Mono', 'Fira Code', monospace;
-    font-size: 12.5px;
-    line-height: 1.7;
-    overflow-x: auto;
-    margin: 16px 0;
-    color: var(--text-muted);
-  }
-  .flow {
-    background: #0d0f14;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 20px 24px;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 12.5px;
-    text-align: center;
-    margin: 16px 0;
-    color: var(--text-muted);
-    line-height: 2;
-  }
-  .flow .highlight { color: var(--accent2); font-weight: 700; }
-
-  ul, ol { margin: 8px 0 12px 20px; }
-  li { margin-bottom: 6px; }
-
-  .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; letter-spacing: 0.3px; }
-  .badge-green { background: rgba(81,207,102,0.15); color: var(--green); }
-  .badge-red { background: rgba(255,107,107,0.15); color: var(--red); }
-  .badge-orange { background: rgba(255,169,77,0.15); color: var(--orange); }
-  .badge-blue { background: rgba(108,156,255,0.15); color: var(--accent); }
-
-  blockquote {
-    border-left: 3px solid var(--accent2);
-    padding: 12px 20px;
-    margin: 16px 0;
-    background: rgba(68,215,182,0.05);
-    border-radius: 0 8px 8px 0;
-    color: var(--text-muted);
-    font-size: 14px;
-  }
-  blockquote strong { color: var(--accent2); }
-
-  .disclaimer {
-    background: rgba(255,107,107,0.06);
-    border: 1px solid rgba(255,107,107,0.15);
-    border-radius: 8px;
-    padding: 16px 20px;
-    font-size: 12px;
-    color: var(--text-muted);
-    margin-top: 32px;
-  }
-  .footer {
-    text-align: center;
-    padding: 40px 0 20px;
-    color: var(--text-muted);
-    font-size: 12px;
-  }
-
-  @media (max-width: 640px) {
-    .hero { padding: 32px 20px; }
-    .hero h1 { font-size: 21px; }
-    .section { padding: 20px 16px; }
-    .hero .meta-row { gap: 16px; }
-  }
-  @media print {
-    body { background: #fff; color: #1a1a1a; font-size: 11px; }
-    .container { max-width: 100%; padding: 0; }
-    .hero, .section, .toc, .verdict-box { border: 1px solid #ddd; background: #fff; }
-    .hero h1, h2, h3, h4, strong, td:first-child { color: #1a1a1a; }
-    th { background: #f5f5f5; color: #666; }
-    pre, .code-block, .flow { background: #f9f9f9; border-color: #ddd; }
-    .verdict-box .hl { color: #1a1a1a; }
-    .verdict-box .green { color: #2d8f47; }
-    .verdict-box .red { color: #c0392b; }
-    .verdict-box .orange { color: #d35400; }
-  }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PRISM_PKE_260430 — Factory</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            line-height: 1.8;
+            color: #e0e0e0;
+            background: #0a0a0a;
+        }
+        .nav {
+            position: sticky; top: 0; z-index: 100;
+            padding: 12px 24px;
+            background: rgba(10,10,10,0.9);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid #1a1a1a;
+            display: flex; align-items: center; gap: 16px;
+        }
+        .nav a { color: #888; text-decoration: none; font-size: 0.85rem; transition: color 0.15s; }
+        .nav a:hover { color: #fff; }
+        .nav-title { color: #555; font-size: 0.8rem; margin-left: auto; }
+        .layout { display: flex; max-width: 1100px; margin: 0 auto; }
+        .toc {
+            position: sticky; top: 56px;
+            width: 220px; min-width: 220px;
+            height: calc(100vh - 56px);
+            overflow-y: auto;
+            padding: 32px 16px 32px 24px;
+            border-right: 1px solid #141414;
+        }
+        .toc::-webkit-scrollbar { width: 3px; }
+        .toc::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+        .toc-title { font-size: 0.7rem; font-weight: 600; color: #444; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 16px; }
+        .toc a {
+            display: block; padding: 5px 0;
+            font-size: 0.78rem; color: #555;
+            text-decoration: none; transition: color 0.15s;
+            border-left: 2px solid transparent;
+            padding-left: 10px; margin-left: -10px;
+        }
+        .toc a:hover { color: #ccc; }
+        .toc a.active { color: #fff; border-left-color: #fff; }
+        .toc a.h3 { padding-left: 20px; font-size: 0.73rem; }
+        .container {
+            flex: 1; min-width: 0;
+            padding: 48px 48px 100px;
+        }
+        h1 { font-size: 1.8rem; font-weight: 700; line-height: 1.3; margin-bottom: 32px; color: #fff; }
+        h2 {
+            font-size: 1.3rem; font-weight: 700;
+            margin-top: 56px; margin-bottom: 20px; color: #fff;
+            padding-bottom: 8px; border-bottom: 1px solid #222;
+            scroll-margin-top: 72px;
+        }
+        h3 { font-size: 1.1rem; font-weight: 600; margin-top: 36px; margin-bottom: 14px; color: #ddd; scroll-margin-top: 72px; }
+        h4 { font-size: 0.95rem; font-weight: 600; margin-top: 28px; margin-bottom: 10px; color: #ccc; }
+        p { margin-bottom: 14px; font-size: 0.95rem; color: #bbb; }
+        strong { color: #fff; font-weight: 600; }
+        em { color: #aaa; font-style: italic; }
+        ul, ol { margin: 10px 0 14px 24px; color: #bbb; }
+        li { margin-bottom: 5px; font-size: 0.9rem; }
+        table {
+            width: 100%; border-collapse: collapse;
+            margin: 16px 0 24px; font-size: 0.82rem;
+            display: block; overflow-x: auto;
+        }
+        th {
+            background: #141414; color: #ddd;
+            padding: 10px 12px; text-align: left;
+            font-weight: 600; border-bottom: 2px solid #222;
+            white-space: nowrap; position: sticky; top: 0;
+        }
+        td { padding: 9px 12px; border-bottom: 1px solid #161616; color: #aaa; }
+        tr:hover td { background: #0f0f0f; color: #ddd; }
+        pre {
+            background: #0e0e0e; border: 1px solid #1a1a1a;
+            border-radius: 10px; padding: 18px 20px;
+            margin: 14px 0 22px; overflow-x: auto;
+            font-size: 0.8rem; line-height: 1.7; color: #bbb;
+            font-family: 'JetBrains Mono', 'Fira Code', monospace;
+        }
+        code {
+            background: #161616; padding: 2px 7px;
+            border-radius: 5px; font-size: 0.82rem; color: #ddd;
+            font-family: 'JetBrains Mono', 'Fira Code', monospace;
+        }
+        pre code { background: none; padding: 0; }
+        blockquote {
+            border-left: 3px solid #333; padding: 14px 20px;
+            margin: 14px 0; background: #0e0e0e;
+            border-radius: 0 10px 10px 0; color: #999;
+            font-style: italic; font-size: 0.9rem;
+        }
+        hr { border: none; border-top: 1px solid #1a1a1a; margin: 48px 0; }
+        .meta-bar { display: flex; gap: 8px; margin-bottom: 28px; flex-wrap: wrap; }
+        .meta-chip {
+            font-size: 0.72rem; padding: 4px 10px;
+            border-radius: 20px; background: #141414;
+            border: 1px solid #222; color: #888;
+        }
+        .disclaimer {
+            margin-top: 48px; padding: 14px 16px;
+            background: #0e0e0e; border: 1px solid #1a1a1a;
+            border-radius: 10px; font-size: 0.78rem; color: #555;
+        }
+        .back-top {
+            position: fixed; bottom: 24px; right: 24px;
+            width: 40px; height: 40px;
+            background: #1a1a1a; border: 1px solid #333;
+            border-radius: 50%; color: #888;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; opacity: 0; transition: opacity 0.3s;
+            font-size: 1.1rem; text-decoration: none;
+        }
+        .back-top.show { opacity: 1; }
+        .back-top:hover { background: #333; color: #fff; }
+        @media (max-width: 900px) {
+            .toc { display: none; }
+            .container { padding: 32px 20px 80px; }
+        }
+        @media (max-width: 600px) {
+            .container { padding: 24px 16px 60px; }
+            h1 { font-size: 1.4rem; }
+            h2 { font-size: 1.1rem; }
+            table { font-size: 0.75rem; }
+            th, td { padding: 7px 8px; }
+        }
+    </style>
 </head>
 <body>
-
-<div class="container">
-
-<!-- HERO -->
-<div class="hero">
-  <span class="ticker">PKE &middot; NYSE</span>
-  <h1>항공+방산 이중 수혜 니치 복합소재<br>$200M 성장 여정의 변곡점</h1>
-  <p class="subtitle">Park Aerospace Corp &mdash; LEAP 팬케이스 &times; PAC-3 어블레이티브 &times; $50M 신공장</p>
-  <div class="meta-row">
-    <div class="meta-item">
-      <span class="meta-label">판정</span>
-      <span class="meta-value wait">WAIT</span>
+    <div class="nav">
+        <a href="index.html">&larr; Factory</a>
+        <span class="nav-title">PRISM_PKE_260430</span>
     </div>
-    <div class="meta-item">
-      <span class="meta-label">현주가 (5/14)</span>
-      <span class="meta-value">$34.16</span>
+    <div class="layout">
+        <nav class="toc" id="toc"><div class="toc-title">목차</div></nav>
+        <div class="container">
+<h1>PRISM_PKE_260430</h1>
+<h1>Park Aerospace Corp (PKE) PRISM 분석</h1>
+<blockquote><strong>분석일</strong>: 2026-04-30 | <strong>현재가</strong>: $32.77 (NYSE) | <strong>시총</strong>: ~$653M</blockquote>
+<blockquote><strong>52주</strong>: $12.07 ~ $35.86 | <strong>PBR</strong>: 6.13배 | <strong>EV/EBITDA</strong>: 43.23배</blockquote>
+<blockquote><strong>Forward PER(FY27E)</strong>: ~55배 | <strong>TTM PER</strong>: 76.24배 | <strong>PS</strong>: 9.89배</blockquote>
+<blockquote><strong>회계연도</strong>: 2월 결산 | <strong>기업유형</strong>: TYPE A (순수 성장주)</blockquote>
+<blockquote><strong>⚠️ 특수 상황</strong>: $50M 신공장 투자 진행 중 (120,000 sq ft, 용량 2배 확장). FY2027 capex 피크. H2 2028 가동 목표.</blockquote>
+<hr>
+<h2>S0. 매크로 &amp; 산업 컨텍스트</h2>
+<blockquote><strong>핵심 질문: "거시 환경이 이 산업에 순풍인가, 역풍인가?"</strong></blockquote>
+<h3>S0-1. 매크로 테마 정렬 평가</h3>
+<table>
+<tr><th>항목</th><th>체크 포인트</th><th>점수</th></tr>
+<tr><td>금리/유동성 (30%)</td><td>Fed 인하 사이클 진입 → 소형 성장주 밸류에이션 지지. PKE는 무부채이므로 직접적 이자 부담 경감은 미미하나, 할인율 하락 = 장기 성장 가치 상승. 항공기 리스·항공사 capex 자금 조달 용이</td><td><strong>7</strong>/10</td></tr>
+<tr><td>구조적 테마 (40%)</td><td><strong>항공우주 복합소재 슈퍼사이클</strong>: LEAP 엔진 2,072→2,500대 램프, A320neo 월 75대 목표(2027), Boeing/Airbus 수주잔고 23,000대+. 방산: PAC-3/SM-6/LRASM 미사일 비축량 고갈 → "전례 없는 수요". 복합소재 침투율 지속 상승 (금속 대체)</td><td><strong>9</strong>/10</td></tr>
+<tr><td>정책/규제 (20%)</td><td>미국 방위비 FY2027 $1.5T 요청. NATO 5% GDP 목표 논의. Buy American Act → 국내 소재 공급자 수혜. FAA/QPL 인증 = 규제가 진입장벽으로 작용. 다만 관세 불확실성 존재 (C2B fabric 유럽 원산지)</td><td><strong>8</strong>/10</td></tr>
+<tr><td>지정학 (10%)</td><td>중동 긴장(이란) → 미사일 수요 급증. 우크라이나 지속 → 비축량 보충 수요. 대만 시나리오 → 태평양 방산 투자. 모두 PKE 방산 매출에 순풍</td><td><strong>8</strong>/10</td></tr>
+</table>
+<p><strong>매크로 정렬도 = 7×0.3 + 9×0.4 + 8×0.2 + 8×0.1 = 2.1 + 3.6 + 1.6 + 0.8 = 8.1점</strong></p>
+<table>
+<tr><th>점수</th><th>판정</th></tr>
+<tr><td><strong>8.1</strong></td><td><strong>강한 순풍 — 항공+방산 이중 구조적 수혜</strong></td></tr>
+</table>
+<h3>S0-2. 전방산업 분석</h3>
+<h4>① 상업항공 복합소재 | <strong>전방산업 성장률: 강성장</strong></h4>
+<table>
+<tr><th>지표</th><th>수치</th></tr>
+<tr><td>글로벌 항공기 수주잔고</td><td>23,000대+ (역대 최대)</td></tr>
+<tr><td>A320neo 인도 목표 (2027)</td><td>월 75대 (현재 ~50대, <strong>+50%</strong>)</td></tr>
+<tr><td>LEAP 엔진 인도 (2026E)</td><td>~2,072대 (+15% YoY)</td></tr>
+<tr><td>LEAP 엔진 목표 (2028)</td><td>2,500대</td></tr>
+<tr><td>LEAP-1A A320neo 시장점유율</td><td><strong>64.5%</strong> (vs P&amp;W GTF)</td></tr>
+<tr><td>A320neo+C919 연간 LEAP-1A 수요</td><td>75대/월 × 12 × 64.5% = <strong>~1,161대/년</strong> (A320만)</td></tr>
+<tr><td>Q1 2026 LEAP 인도</td><td>520대 (+63% YoY)</td></tr>
+<tr><td>GE Aerospace 2026 수주잔고</td><td>$40B+ (역대 최대)</td></tr>
+</table>
+<p><strong>판정</strong>: LEAP 엔진은 <strong>A320neo의 압도적 주력 엔진(64.5% 점유)</strong>. Airbus의 월 75대 인도 목표 달성 과정에서 LEAP 소재 수요는 구조적으로 증가. P&amp;W GTF의 지속적 신뢰성 문제도 LEAP 점유율 상승 요인. <strong>내년이 올해보다 확실히 좋다</strong> — LEAP 증산 가속 + A320neo 인도 확대.</p>
+<h4>② 방산 복합소재 (미사일/로켓) | <strong>전방산업 성장률: 극강</strong></h4>
+<table>
+<tr><th>지표</th><th>수치</th></tr>
+<tr><td>미국 DoD 예산 (FY2027E)</td><td>$1.5T 요청</td></tr>
+<tr><td>미사일 비축량 상황</td><td>우크라이나+중동 → <strong>전례 없는 고갈</strong></td></tr>
+<tr><td><strong>PAC-3 생산 확대</strong></td><td><strong>연 600발 → 2,000발 (3.3배) 7년 계약 ($4.7B)</strong>. 2030년까지 램프. PKE는 PAC-3 어블레이티브 sole source qualified</td></tr>
+<tr><td>SM-6 수요</td><td>해군 미사일 방어 핵심, 생산 확대</td></tr>
+<tr><td>LRASM 생산</td><td>대중국 A2/AD 대비 핵심 무기</td></tr>
+<tr><td>Valkyrie (Kratos)</td><td>해병대 Loyal Wingman 선정 → <strong>신규 프로그램</strong></td></tr>
+<tr><td>C2B fabric (ArianeGroup)</td><td>PKE 북미 독점 유통, <strong>EUR 4.587M 용량 투자</strong> (50/50)</td></tr>
+</table>
+<p><strong>판정</strong>: 미사일 비축량 고갈은 <strong>미국 방산 역사에서 전례 없는 수준</strong>. 이란·우크라이나·대만 3대 전선에서 동시 보충 수요 발생. PKE의 어블레이티브 소재(로켓 모터/노즈콘)와 C2B fabric은 이 트렌드의 직접 수혜. <strong>내년(FY2028)이 올해(FY2027)보다 좋다</strong> — 미사일 증산 프로그램 본격 가동 + 신공장 용량 확보.</p>
+<h3>S0-3. 밸류체인 맵</h3>
+<pre><code>[항공우주 복합소재 밸류체인 — Park Aerospace 포지션: 1차 소재 가공]
+
+[원자재 공급] (상류)
+├── 에폭시 수지, 경화제 (Hexion, Huntsman)
+├── 탄소섬유 (Toray, Hexcel, Teijin)
+├── 유리섬유, 아라미드 (Owens Corning, DuPont Kevlar)
+└── 특수 화학제 (Solvay, Cytec)
+
+[1차 소재 가공] ← ★ Park Aerospace 핵심 포지션
+├── ★ Park Aerospace — 필름 접착제, 낙뢰보호재, 어블레이티브(미사일/로켓), 라돔 소재
+├── Hexcel (HXL) — 탄소섬유 프리프레그, 하니콤 구조재 (시장 최대)
+├── Toray (3402.T) — 탄소섬유/프리프레그 (Boeing 787 독점)
+├── Solvay Composites — 항공우주 복합소재 (2023 Syensqo로 분사)
+└── ArianeGroup — RAYCARB C2B fabric (PKE 북미 독점 유통)
+
+[2차 가공 / 구조물 제조]
+├── Ducommun (DCO) — 복합 구조물, 전자 시스템
+├── Spirit AeroSystems — 대형 에어로스트럭처 (Boeing 인수)
+├── Triumph Group (TGI) — 항공 구조물
+└── Park Aerospace — 복합 부품·어셈블리 (소규모)
+
+[엔진/무기 OEM] (하류)
+├── GE Aerospace — LEAP 엔진 팬케이스 (★ PKE 매출 40%)
+├── CFM International — LEAP-1A(A320), LEAP-1B(737MAX), LEAP-1C(C919)
+├── Lockheed Martin — PAC-3, F-35
+├── Raytheon/RTX — SM-6, Tomahawk
+├── Kratos Defense — Valkyrie 드론 (해병대 선정)
+└── L3Harris — 방산 전자/통신
+
+[최종 플랫폼]
+├── 상업항공: A320neo (LEAP-1A), 737 MAX (LEAP-1B), C919 (LEAP-1C), 747-8 (GEnx-2B)
+├── 방산: PAC-3, SM-6, LRASM, Tomahawk, Valkyrie 로열윙맨
+├── 로켓/우주: 로켓 모터 노즈콘, 어블레이티브 소재
+└── 특수: 라돔(레이더 투과 돔), 낙뢰보호 시스템</code></pre>
+<h3>S0-4. 테마 연관기업 맵</h3>
+<pre><code>[항공우주 복합소재 &amp; 방산 미사일 소재]
+├── 복합소재 공급: ★Park Aerospace(필름접착/어블레이티브), Hexcel(탄소섬유), Toray(프리프레그)
+├── 특수합금: Carpenter Technology(CRS), Materion(베릴륨)
+├── 엔진 OEM: GE Aerospace, P&amp;W(RTX), Rolls-Royce, CFM International
+├── 항공기 OEM: Boeing, Airbus, COMAC
+├── 방산 미사일: Lockheed Martin(PAC-3), Raytheon(SM-6), Kratos(Valkyrie)
+├── 항공 MRO: StandardAero, MTU Aero, IHI Corporation
+├── 에어로스트럭처: Spirit AeroSystems, Ducommun, Triumph Group
+└── 정밀 액추에이터: Moog (미션크리티컬 부품)</code></pre>
+<hr>
+<h2>S1. 기업 DNA</h2>
+<blockquote><strong>핵심 질문: "이 기업과 10년을 동행할 수 있는가?"</strong></blockquote>
+<h3>S1-1. 기업 연혁 &amp; 핵심 이정표</h3>
+<table>
+<tr><th>시기</th><th>이벤트</th><th>의미</th></tr>
+<tr><td>1954</td><td>Park Electrochemical Corp 설립</td><td>인쇄회로기판(PCB) + 항공 복합소재 이중 사업</td></tr>
+<tr><td>1990s</td><td>항공우주 복합소재 역량 확대</td><td>GE 엔진 프로그램 소재 공급 시작</td></tr>
+<tr><td>1996</td><td>Brian Shore CEO 취임</td><td>현재까지 <strong>30년 재임</strong> — 안정적 리더십</td></tr>
+<tr><td><strong>2015</strong></td><td><strong>전자사업부 AGC에 매각 ($145M)</strong></td><td>순수 항공우주 복합소재 기업으로 전환 — 전략적 전환점</td></tr>
+<tr><td>2018</td><td>Park Aerospace Corp으로 사명 변경</td><td>항공우주 아이덴티티 확립</td></tr>
+<tr><td>2019</td><td>GE Aerospace LTA 체결 (<strong>2029년까지</strong>)</td><td>LEAP 팬케이스 소재 장기 매출 확보</td></tr>
+<tr><td>2025</td><td>ArianeGroup C2B fabric 북미 독점 유통 계약</td><td>방산 미사일 소재 영역 확장</td></tr>
+<tr><td><strong>2025-26</strong></td><td><strong>$50M 신공장 투자 결정 (Midwest, 120K sq ft)</strong></td><td>용량 2배 확장 — 창사 이래 최대 설비 투자</td></tr>
+</table>
+<h3>S1-2. 경영진 DNA 5축 채점</h3>
+<table>
+<tr><th>축</th><th>평가</th><th>점수</th></tr>
+<tr><td>비전 &amp; 장기 사고</td><td>2015년 전자사업 매각(단기 수익 포기) → 항공우주 순수화 → $200M 매출 장기 목표 설정. "We are the company of yes." 고객 니즈 중심 운영 철학. 30년 일관된 방향성</td><td><strong>4</strong>/5</td></tr>
+<tr><td>실행력</td><td>GE LEAP LTA 확보(2029), FY26 매출 +20% YoY 달성, $50M 투자 적시 결정. 다만 전자 매각 후 10년간 성장이 완만했음(연 $50-65M 수준 정체)</td><td><strong>3.5</strong>/5</td></tr>
+<tr><td>자본배분</td><td><strong>무부채 경영</strong> 30년+, 현금 $63.6M 축적, 41년 연속 배당 유지, $50M 자기자본 투자(차입 불요). 보수적이되 적시에 공격적</td><td><strong>4.5</strong>/5</td></tr>
+<tr><td>위기대응</td><td>COVID 중 항공 불황 → 현금 보존으로 생존, 구조조정 없이 배당 유지. 공급망 장애($740K 미출하) → 투명 소통</td><td><strong>3.5</strong>/5</td></tr>
+<tr><td>이해관계 정렬</td><td>CEO 30년 재임 = 회사와 운명 공동체. 다만 인사이더 지분 상세 공개 제한적. 이사회 장기 재직(1983~)</td><td><strong>3</strong>/5</td></tr>
+</table>
+<p><strong>경영진 DNA 점수 = 18.5/25 × 4 = 74/100</strong> (PASS)</p>
+<blockquote>Brian Shore CEO의 30년 재임과 무부채+41년 배당이라는 트랙레코드는 인상적. 보수적 경영의 전형이나, $50M 투자 결단은 적시 공격 전환 의지를 보여줌.</blockquote>
+<h3>S1-3. 10년 테스트 (Baillie Gifford)</h3>
+<table>
+<tr><th>항목</th><th>판정</th></tr>
+<tr><td>① 10년 후 이 기업이 더 강해지는가?</td><td>✅ LEAP 엔진 수명 30년+, 수주잔고 23,000대, 방산 구조적 확대. $200M 매출 목표(현재 $73M의 2.7배)</td></tr>
+<tr><td>② 경쟁자가 쉽게 복제할 수 없는가?</td><td>⚠️ QPL 인증(2-5년), LEAP 소재 교체 = 재인증 필요 → 단기 복제 어려움. 다만 Hexcel/Toray 등 대형 경쟁자 진입 가능</td></tr>
+<tr><td>③ 경영진이 장기 가치 창출에 집중하는가?</td><td>✅ 전자사업 매각(단기 수익 포기), 30년 CEO 재임, 무부채 경영, 41년 배당</td></tr>
+</table>
+<p><strong>결과: 2.5/3 CONDITIONAL PASS</strong> — 핵심 리스크는 대형 경쟁자의 니치 진입 가능성</p>
+<hr>
+<h2>S2. 비즈니스 모델</h2>
+<h3>S2-1. 한줄 비즈니스</h3>
+<blockquote>"GE Aerospace LEAP 엔진 팬케이스용 필름 접착제(매출 40%)와 방산 미사일/로켓용 어블레이티브 복합소재를 전문 제조하는 순수 항공우주 소재 기업. 무부채, 현금 $64M, 41년 연속 배당."</blockquote>
+<h3>S2-2. 수익 구조 분해</h3>
+<table>
+<tr><th>세그먼트</th><th>제품</th><th>FY2026E 매출</th><th>비중</th><th>성장 방향</th></tr>
+<tr><td><strong>GE Aerospace (LEAP)</strong></td><td>팬케이스 필름 접착제, 낙뢰보호재</td><td>$29.0-29.5M</td><td><strong>~40%</strong></td><td>↑↑ LEAP 2,072→2,500대</td></tr>
+<tr><td><strong>방산/우주</strong></td><td>어블레이티브(PAC-3, SM-6, LRASM), 라돔, 로켓 노즈콘</td><td>~$20-22M</td><td><strong>~28%</strong></td><td>↑↑ 미사일 비축량 보충</td></tr>
+<tr><td><strong>기타 상업 항공</strong></td><td>Boeing/Airbus 구조물 소재</td><td>~$14-15M</td><td>~19%</td><td>↑ 백로그 소화</td></tr>
+<tr><td><strong>C2B Fabric (ArianeGroup)</strong></td><td>RAYCARB C2B 탄소직물 (북미 유통)</td><td>~$9.8M</td><td>~13%</td><td>→ 초기 단계, 저마진</td></tr>
+<tr><td><strong>합계</strong></td><td></td><td><strong>$72.5-73.5M</strong></td><td>100%</td><td></td></tr>
+</table>
+<blockquote><strong>주의</strong>: C2B fabric $9.8M은 FY2026 Q4에 집중된 일시적 매출로, "very light margins" (pass-through). 핵심 마진 구조를 왜곡하므로 실질 수익성 평가 시 제외 고려.</blockquote>
+<h3>S2-3. Dorsey 해자 5유형 채점</h3>
+<table>
+<tr><th>해자 유형</th><th>근거</th><th>점수</th></tr>
+<tr><td><strong>전환비용</strong></td><td>QPL(Qualified Products List) 인증 교체에 <strong>2-5년</strong> + 재인증 비용. LEAP 팬케이스 소재 교체 = GE 재인증 필수. AS9100 품질 인증. 항공우주 소재 교체는 비용보다 <strong>리스크</strong>가 장벽 — 비행 안전 직결</td><td><strong>4</strong>/5</td></tr>
+<tr><td><strong>무형 자산</strong></td><td>50년+ 항공우주 복합소재 제조 노하우. QPL 인증 다수 보유. 어블레이티브/라돔/낙뢰보호 특수 배합 기술. 다만 특허 기반이 아닌 know-how 기반</td><td><strong>3</strong>/5</td></tr>
+<tr><td><strong>효율적 규모</strong></td><td>항공우주 필름 접착제/어블레이티브는 니치 시장 — 소수 인증 공급자만 존재. 시장 크기가 대형 경쟁자(Hexcel $1.9B 매출)에게는 매력 부족 → PKE가 효율적으로 지배 가능</td><td><strong>3</strong>/5</td></tr>
+<tr><td><strong>비용 우위</strong></td><td>Hexcel($1.9B), Toray($20B+) 대비 <strong>규모 열위</strong>. 구매력, R&amp;D 투자 모두 소규모. $50M 투자로 개선 중이나 근본적 비용 우위는 없음</td><td><strong>1</strong>/5</td></tr>
+<tr><td><strong>네트워크 효과</strong></td><td>해당 없음</td><td><strong>1</strong>/5</td></tr>
+</table>
+<p><strong>해자 합계: 12/25</strong></p>
+<table>
+<tr><th>점수</th><th>판정</th></tr>
+<tr><td><strong>12</strong></td><td><strong>NARROW MOAT</strong> — QPL 인증 전환비용이 핵심 해자. 니치 포지셔닝으로 대형 경쟁자의 직접 공격을 회피</td></tr>
+</table>
+<h3>S2-4. TAM 확장 경로</h3>
+<table>
+<tr><th>레이어</th><th>시장</th><th>규모</th></tr>
+<tr><td><strong>Core</strong></td><td>LEAP 팬케이스 소재 + 기존 방산 어블레이티브</td><td>현재 $73M → $100M (LEAP 증산만으로)</td></tr>
+<tr><td><strong>Adjacent</strong></td><td>미사일 증산(PAC-3/SM-6 생산 확대), C2B fabric 유통 확대, 차세대 엔진 프로그램 진입</td><td>+$50-70M (경영진 $200M 목표의 핵심)</td></tr>
+<tr><td><strong>Aspirational</strong></td><td>극초음속 무기 소재, RISE(차세대 오픈로터 엔진), XA100(차세대 전투기 엔진), 미국 내 C2B 제조 시설</td><td>+$50-100M (2030년대)</td></tr>
+</table>
+<h3>⚠️ 시장 내러티브 vs 실제 (팩트체크)</h3>
+<blockquote>2026.04 기준 PKE를 "대체 불가능한 병목 기업", "록히드·GE가 반드시 거쳐야 하는 독점 공급사"로 포장하는 투자 내러티브가 유통 중. 아래는 검증 결과.</blockquote>
+<table>
+<tr><th>주장</th><th>실제</th><th>판정</th></tr>
+<tr><td>"LEAP 엔진 나셀/역추진 장치 소재 독점"</td><td>PKE는 <strong>필름 접착제/수지</strong>를 공급. 나셀은 Safran/Nexcelle, 팬케이스는 Albany International(AEC)이 제조. PKE는 구조물이 아닌 <strong>접착·코팅 소재</strong> 공급자</td><td>⚠️ 과장</td></tr>
+<tr><td>"PAC-3 어블레이티브 sole source"</td><td>경영진 어닝콜에서 "sole source qualified" 언급. <strong>특정 소재에 한정</strong>된 인증이며, 대체 공급자 인증은 2-5년이면 가능</td><td>✅ 사실 (범위 주의)</td></tr>
+<tr><td>"C2B fabric 사재기 → PKE 공장에서 고마진 제품으로 전환 → J-Curve"</td><td>C2B는 <strong>ArianeGroup(프랑스) 제품</strong>이고 PKE는 <strong>북미 유통만</strong> 담당. CEO가 직접 "very, very light margins"이라 언급. 자체 어블레이티브와 <strong>별개 제품 라인</strong>. J-Curve 근거 부족</td><td>❌ 오류</td></tr>
+<tr><td>"병목(Bottleneck) 기업 — LMT·GE가 거쳐야 함"</td><td>PKE 연매출 $73M vs LMT $67B, GE $40B+. 특정 소재의 sole source이나, <strong>공급 실패 시 대체 인증 가능</strong>(2-5년). 시스템 병목이 아닌 니치 소재 공급자</td><td>⚠️ 과장</td></tr>
+<tr><td>"현금 시총 15%, 투자 시총 10%"</td><td>현금 $63.6M / 시총 $653M = <strong>9.7%</strong> (15% 아님). $50M / $653M = <strong>7.7%</strong> (10% 아님)</td><td>❌ 부정확</td></tr>
+</table>
+<blockquote><strong>투자 시사점</strong>: PKE의 실제 강점(QPL 인증, LEAP LTA 2029, PAC-3 sole source, 무부채)은 충분히 매력적이나, 시장 내러티브는 역할을 부풀리고(접착제→나셀), 유통을 자체 제조로 혼동시키며, "병목"이라는 프레이밍으로 실제보다 크리티컬한 기업으로 포장하고 있음. <strong>좋은 회사 ≠ 좋은 투자</strong>의 전형 — 특히 P/E 76x에서.</blockquote>
+<h3>딥다이브: 경쟁력·성장·공급 분석 (어닝콜 원문 기반)</h3>
+<h4>A. 경쟁사 대비 차별점 — "왜 고객이 PKE를 바꾸지 않는가?"</h4>
+<p>Shore CEO가 밝힌 3축 차별화: <strong>"Flexibility, Responsiveness, Urgency"</strong></p>
+<blockquote>"우리가 여기까지 온 방법을 버리면 안 된다. 고객이 몇 달씩 기다리는 mill company가 되면 안 된다."</blockquote>
+<table>
+<tr><th>차별점</th><th>PKE</th><th>대형 경쟁사 (Hexcel, Solvay, 3M)</th></tr>
+<tr><td>반응 속도</td><td>즉각 대응, "company of yes"</td><td>관료주의, 대기열, 수개월 리드타임</td></tr>
+<tr><td>의사결정</td><td>GE가 redundant factory 요구 → <strong>현장에서 즉시 수락</strong></td><td>이사회 승인, 분기 단위 의사결정</td></tr>
+<tr><td>고객 관계</td><td>CEO 직접 대응, 소수 고객 밀착</td><td>계정 관리자 간접 소통</td></tr>
+<tr><td>규모</td><td>$73M, 수백 명</td><td>$1-20B+, 수만 명</td></tr>
+</table>
+<p><strong>GE "redundant factory" 일화</strong> (CEO 원문): "만약 당신이 똑똑하다면, Park가 돈이 있을까? 다른 데 알아보자 라고 생각할 수 있다. <strong>그런 일은 일어나지 않았다.</strong> 우리가 현장에서 바로 하겠습니다 라고 했기 때문이다."</p>
+<p>→ PKE의 진짜 해자: <strong>QPL 전환비용(2-5년) + 소형 기업 민첩성 + 30년 신뢰 관계</strong>. 대형사가 기술적 대체 가능하더라도, "잘 되고 있는 공급자를 굳이 바꿀 이유"가 없음.</p>
+<h4>B. 성장 궤적 — 어닝콜 정량 데이터</h4>
+<table>
+<tr><th>지표</th><th>수치</th><th>시사점</th></tr>
+<tr><td>FY2031 $200M 목표</td><td>알려진 프로그램만 적산, 미확인 기회 <strong>미포함</strong></td><td>보수적 산정</td></tr>
+<tr><td>Shore CEO 본인 코멘트</td><td>"FY2031은 좀 공격적, <strong>5년이 나을 수도</strong>"</td><td>솔직한 리스크 인정</td></tr>
+<tr><td>신공장 용량</td><td>$220M(최적) ~ $260M(약간 무리) ~ $315M(밀 운영, 비선호)</td><td>$200M은 공장 역량 내</td></tr>
+<tr><td>기밀 방산 프로그램</td><td>"numerous critical programs...too confidential"</td><td>매출 상방 존재</td></tr>
+<tr><td>가격 결정력</td><td>단기 가격 책정, 관세 pass-through 가능</td><td>마진 방어력</td></tr>
+<tr><td>고객 Top 5</td><td>GE/Middle River, Lockheed, Airbus, Kratos, Sikorsky</td><td>분산 개선 중</td></tr>
+</table>
+<h4>C. 공급 과다 가능성</h4>
+<p><strong>현재: 공급 부족</strong></p>
+<ul>
+<li>Q3 $740K 미출하 (수요 &gt; 공급)</li>
+<li>CEO: "significant additional capacity is required"</li>
+</ul>
+<p><strong>신공장 가동 후(2028~): 적정</strong></p>
+<ul>
+<li>용량 $220-260M vs 목표 $200M → 가동률 77-91%</li>
+<li>CEO가 "mill company" 되기를 의도적 거부 → 과잉 공급 경계</li>
+<li>QPL 인증 진입장벽으로 공급자 신규 진입 제한</li>
+</ul>
+<p><strong>과잉 리스크</strong>: LEAP이 2030년대 차세대 엔진(RISE)으로 전환 시 → Pre-mortem "LEAP의 함정" 참조</p>
+<h4>D. 데이터센터 기술 변화 영향</h4>
+<p><strong>PKE는 데이터센터와 무관.</strong> 최종 제품은 제트엔진 접착제와 미사일 로켓 소재(물리적/기계적). AI/반도체/광학 기술 변화에 영향받지 않음. PKE의 리스크는 <strong>항공산업 사이클</strong>과 <strong>방산 예산</strong>에서 발생.</p>
+<p>장기 기술 리스크: 열가소성 복합재 등 차세대 접착 기술이 PKE의 열경화성 에폭시 제품을 대체할 가능성은 있으나, 항공 인증 전환에 10-15년 소요 → 단기 리스크 아님.</p>
+<h4>E. 밸류체인 내 정확한 역할 (오해 방지)</h4>
+<pre><code>[LEAP 엔진 팬케이스 밸류체인 — 역할 구분]
+
+탄소섬유·에폭시 수지 (원자재)
+    ↓
+★ Park Aerospace — 필름 접착제, 코팅 소재, 낙뢰보호재 제조
+    ↓
+Albany International (AEC) — 3D 직조 + RTM으로 팬케이스·팬블레이드 제조 (sole supplier)
+    ↓
+GE Aerospace / CFM International — LEAP 엔진 조립
+    ↓
+Airbus A320neo / Boeing 737 MAX / COMAC C919</code></pre>
+<blockquote>Albany International이 팬케이스/팬블레이드의 sole supplier. PKE는 그 조립 과정에 사용되는 <strong>접착·코팅 소재</strong>를 공급. "나셀"이나 "역추진 장치"를 만드는 것이 아님.</blockquote>
+<h4>딥다이브 Q&amp;A 요약</h4>
+<table>
+<tr><th>#</th><th>질문</th><th>답변</th></tr>
+<tr><td>1</td><td><strong>전방산업 성장세</strong></td><td>항공우주 접착제 시장 $1.15B→$2.24B(2033, CAGR 7.5%). LEAP 2,072→2,500대. PAC-3/SM-6 "전례 없는 수요". 구조적 성장 확실</td></tr>
+<tr><td>2</td><td><strong>어닝콜 성장 신호</strong></td><td>Q3 매출 +20.3%, 순이익 +87.1% YoY. $200M 목표는 알려진 프로그램만 적산(기밀 방산 미포함). CEO 본인 "FY2031은 좀 공격적, 5년이 나을 수도"</td></tr>
+<tr><td>3</td><td><strong>경쟁사 대비 차별점</strong></td><td>3축: Flexibility, Responsiveness, Urgency. GE redundant factory 현장 즉시 수락 일화. 대형사(Hexcel/Solvay/3M) 관료주의 vs PKE 즉각 대응</td></tr>
+<tr><td>4</td><td><strong>적절한 매수 가격대</strong></td><td>이상적 $25-28(Bear 대비 30%+ 안전마진). 현재 $32.77은 비대칭 2.0:1. $28 진입 시 3.2:1+. P/E 76x는 완벽한 실행 전제</td></tr>
+<tr><td>5</td><td><strong>확실히 좋아지는가</strong></td><td>FY2028 &gt;&gt; FY2027 확실(신공장 가동, capex 피크 통과, LEAP 2,500대, 방산 본격화). 다만 '좋아진다 ≠ 좋은 투자'. 현 밸류에이션이 상당부분 선반영</td></tr>
+<tr><td>6</td><td><strong>데이터센터 기술 변화</strong></td><td>완전 무관. 제트엔진 접착제/미사일 소재는 물리적 제품. 리스크는 항공 사이클과 방산 예산에서 발생. 장기: 열가소성 복합재 대체 가능성(10-15년 후)</td></tr>
+<tr><td>7</td><td><strong>고객이 왜 필요로 하는가</strong></td><td>QPL 인증(교체 2-5년, 비행안전 직결) + GE LTA 2029 장기계약 + CEO 30년 신뢰 + 대형사 전환 시 리드타임 수개월 증가. PAC-3 sole source qualified</td></tr>
+<tr><td>8</td><td><strong>공급 과다 가능성</strong></td><td>현재 공급 부족(Q3 $740K 미출하). 신공장 후 가동률 77-91%(적정). CEO가 mill company 되기 거부. QPL 장벽으로 신규 진입 제한. 장기: LEAP→RISE 전환 시 리스크</td></tr>
+</table>
+<hr>
+<h2>S3. 재무 엔진</h2>
+<h3>S3-1. 재무 대시보드</h3>
+<table>
+<tr><th>항목</th><th>FY2024</th><th>FY2025</th><th>FY2026E</th><th>FY2027E</th><th>FY2028E</th></tr>
+<tr><td><strong>매출($M)</strong></td><td>55.8</td><td>58.8</td><td>72.5-73.5</td><td>~80-90</td><td>~100-120</td></tr>
+<tr><td><strong>Adj EBITDA($M)</strong></td><td>—</td><td>~12</td><td>17.5-18.0</td><td>~18-22</td><td>~25-35</td></tr>
+<tr><td><strong>순이익($M)</strong></td><td>—</td><td>—</td><td>~10-11</td><td>~10-13</td><td>~15-22</td></tr>
+<tr><td><strong>EPS($)</strong></td><td>—</td><td>—</td><td>~$0.52</td><td>~$0.55-0.65</td><td>~$0.80-1.10</td></tr>
+<tr><td><strong>Gross Margin</strong></td><td>~28%</td><td>~29%</td><td>~31%</td><td>~30%(capex 과도기)</td><td>~33-35%(신공장)</td></tr>
+<tr><td><strong>현금($M)</strong></td><td>~65</td><td>~64</td><td>~64</td><td>~35-40(capex 후)</td><td>~30-40</td></tr>
+<tr><td><strong>부채</strong></td><td><strong>$0</strong></td><td><strong>$0</strong></td><td><strong>$328K</strong></td><td><strong>$0</strong></td><td><strong>$0</strong></td></tr>
+<tr><td><strong>Capex($M)</strong></td><td>~3</td><td>~3</td><td>~5</td><td><strong>~30(피크)</strong></td><td>~15</td></tr>
+<tr><td><strong>배당($/주)</strong></td><td>0.50</td><td>0.50</td><td>0.50</td><td>0.50(E)</td><td>0.50(E)</td></tr>
+</table>
+<blockquote><strong>주의</strong>: FY2026E 매출에 C2B fabric ~$9.8M(Q4 집중, 저마진) 포함. 유기적 매출 성장률은 ~15% (C2B 제외).</blockquote>
+<p><strong>Q3 FY2026 하이라이트</strong>:</p>
+<ul>
+<li>매출: $17.33M (+20.3% YoY)</li>
+<li>순이익: $2.95M (+87.1% YoY)</li>
+<li>Adj EBITDA: $4.228M (가이던스 상단 초과)</li>
+<li>Gross Margin: <strong>34.1%</strong> (개선 추세)</li>
+<li>GE Aerospace 매출: $7.5M</li>
+<li>현금: $63.6M, 부채: $0</li>
+</ul>
+<h3>S3-2. 7대 재무건전성 체크 (Seungdori 기준)</h3>
+<table>
+<tr><th>#</th><th>항목</th><th>판정</th><th>비고</th></tr>
+<tr><td>1</td><td>매출 성장 추세</td><td>✅</td><td>Q3 +20.3% YoY, FY26 $72.5-73.5M, 장기 $200M 목표(CAGR ~22%)</td></tr>
+<tr><td>2</td><td>영업이익률 개선</td><td>✅</td><td>Gross 28%→34.1% 개선 추세. 다만 Q4 C2B 저마진 일시적 왜곡</td></tr>
+<tr><td>3</td><td>순부채 건전성</td><td>✅</td><td><strong>넷캐시</strong> $63.3M (현금 $63.6M - 부채 $0.3M). 무차입 경영</td></tr>
+<tr><td>4</td><td>FCF 창출력</td><td>⚠️</td><td>TTM FCF $3.42M — 양(+)이나 소규모. <strong>FY2027 capex $30M으로 FCF 마이너스 전환 예상</strong></td></tr>
+<tr><td>5</td><td>ROE 적정성</td><td>⚠️</td><td>ROE 8.11% — 양호하나 높지 않음. 현금 $64M이 ROE를 희석(유보이익 비효율)</td></tr>
+<tr><td>6</td><td>이익의 질</td><td>⚠️</td><td>GE Aerospace 40% 고객 집중. C2B 저마진 매출 포함. 방산은 정부 예산 의존</td></tr>
+<tr><td>7</td><td>배당/주주환원</td><td>✅</td><td><strong>41년 연속 배당</strong> ($0.50/년, 수익률 1.53%). 자사주 매입은 제한적</td></tr>
+</table>
+<p><strong>결과: 4/7 PASS, 3/7 MARGINAL</strong> → S4 진입 가능하나 주의</p>
+<blockquote>FCF가 FY2027 capex 피크에 마이너스 전환될 가능성 높음. 다만 현금 $64M으로 완전 자기자본 충당 가능 → 재무 위험은 낮음.</blockquote>
+<h3>S3-3. 내년 vs 올해: FY2028E vs FY2027E</h3>
+<table>
+<tr><th>항목</th><th>FY2027E</th><th>FY2028E</th><th>비교</th></tr>
+<tr><td>매출</td><td>~$80-90M</td><td>~$100-120M</td><td>↑↑ 신공장 가동+LEAP 증산</td></tr>
+<tr><td>Capex</td><td><strong>$30M (피크)</strong></td><td>$15M (감소)</td><td>↑ FCF 회복</td></tr>
+<tr><td>Gross Margin</td><td>~30% (C2B 왜곡 가능)</td><td>~33-35% (정상화)</td><td>↑ 마진 개선</td></tr>
+<tr><td>현금 포지션</td><td>~$35-40M (capex 소진)</td><td>~$30-40M (FCF 회복)</td><td>→ 안정화</td></tr>
+<tr><td>LEAP 인도</td><td>~2,200-2,300대</td><td>~2,500대 (목표)</td><td>↑ GE 매출 $32-35M+</td></tr>
+<tr><td>신공장</td><td>건설 진행 중</td><td><strong>H2 가동 개시</strong></td><td>↑↑ 핵심 변화</td></tr>
+<tr><td>방산 미사일</td><td>증산 진행</td><td>본격 가동</td><td>↑</td></tr>
+<tr><td>A320neo 인도</td><td>월 65-70대</td><td><strong>월 75대 목표</strong></td><td>↑</td></tr>
+</table>
+<p><strong>판정: FY2028이 FY2027보다 확실히 좋다</strong></p>
+<ol>
+<li><strong>용량 해방</strong>: 신공장 H2 2028 가동 → 현재 대비 2배 용량. 매출 성장 병목 해소</li>
+<li><strong>Capex 피크 통과</strong>: $30M → $15M으로 감소 → FCF 급증</li>
+<li><strong>LEAP 정상 궤도</strong>: 2,500대 목표 도달 → GE 매출 $35M+</li>
+<li><strong>방산 파이프라인 성숙</strong>: PAC-3/SM-6 증산 프로그램 본격 반영</li>
+<li><strong>마진 정상화</strong>: C2B 초기 비용 안정 + 규모의 경제 효과</li>
+</ol>
+<blockquote><strong>FY2027은 "심는 해", FY2028은 "거두는 해"</strong>. Druckenmiller의 "18개월 후를 그려라" — 지금 보이는 capex 부담은 FY2028 이후 레버리지로 전환.</blockquote>
+<hr>
+<h2>S4. 밸류에이션 매트릭스</h2>
+<h3>S4-1. 기업유형 확정</h3>
+<p><strong>TYPE A (순수 성장주)</strong> — 소형 항공우주 소재 기업, 고성장 기대</p>
+<table>
+<tr><th>순위</th><th>밸류에이션 방법</th><th>적용 이유</th></tr>
+<tr><td>1차</td><td><strong>EV/EBITDA</strong></td><td>항공우주 소재 표준 밸류에이션</td></tr>
+<tr><td>2차</td><td><strong>PS (매출 멀티플)</strong></td><td>성장 초기 단계 — EBITDA보다 매출 성장 궤적이 중요</td></tr>
+<tr><td>3차</td><td><strong>Forward PER</strong></td><td>이익 안정화 후 참조</td></tr>
+</table>
+<blockquote>배당수익률 1.53%이나 TYPE B로 분류하지 않는 이유: P/E 76x, PS 9.9x의 밸류에이션은 100% 성장 기대에 기반. 배당은 부수적.</blockquote>
+<h3>S4-2. EV/EBITDA Peer 비교</h3>
+<table>
+<tr><th>기업</th><th>시총</th><th>EV/EBITDA</th><th>P/E</th><th>P/S</th><th>Gross Margin</th><th>특성</th></tr>
+<tr><td><strong>PKE</strong></td><td><strong>$653M</strong></td><td><strong>43.23x</strong></td><td><strong>76.24x</strong></td><td><strong>9.89x</strong></td><td><strong>31.3%</strong></td><td>소형 순수 항공 복합소재</td></tr>
+<tr><td>HXL (Hexcel)</td><td>$6.8B</td><td>22.53x</td><td>60.15x</td><td>3.52x</td><td>24.1%</td><td>최대 항공 복합소재</td></tr>
+<tr><td>CRS (Carpenter)</td><td>~$10B</td><td>~25x</td><td>~39x</td><td>~6.5x</td><td>~25%</td><td>항공 특수합금</td></tr>
+<tr><td>DCO (Ducommun)</td><td>~$2B</td><td>~15x</td><td>~25x</td><td>~2.5x</td><td>~25%</td><td>복합 구조물+전자</td></tr>
+<tr><td>TGI (Triumph)</td><td>~$3B</td><td>~12x</td><td>~20x</td><td>~1.5x</td><td>~20%</td><td>에어로스트럭처</td></tr>
+</table>
+<p><strong>해석</strong>: PKE는 <strong>모든 Peer 대비 극단적 프리미엄</strong>으로 거래 중.</p>
+<table>
+<tr><th>지표</th><th>PKE</th><th>Peer 중앙값</th><th>프리미엄</th></tr>
+<tr><td>EV/EBITDA</td><td>43.23x</td><td>~20x</td><td><strong>+116%</strong></td></tr>
+<tr><td>P/E</td><td>76.24x</td><td>~30x</td><td><strong>+154%</strong></td></tr>
+<tr><td>P/S</td><td>9.89x</td><td>~3x</td><td><strong>+230%</strong></td></tr>
+</table>
+<blockquote>프리미엄의 근거: (1) $200M 매출 목표 = 현재의 2.7배 성장 기대, (2) 무부채+캐시리치, (3) 소형 니치 = 희소성 프리미엄, (4) 52주 +147% 모멘텀. 다만 이 수준의 프리미엄은 <strong>완벽한 실행을 전제</strong>하며, 실적 miss 시 극단적 디레이팅 리스크.</blockquote>
+<h3>S4-3. Forward PER 밴드</h3>
+<table>
+<tr><th>기준</th><th>PER</th><th>비고</th></tr>
+<tr><td>TTM PER</td><td>76.24x</td><td>EPS $0.43 기준</td></tr>
+<tr><td>FY2026E PER</td><td>~63x</td><td>EPS ~$0.52 추정</td></tr>
+<tr><td>FY2027E PER (Base)</td><td>~55x</td><td>EPS ~$0.60 추정</td></tr>
+<tr><td>FY2028E PER (Base)</td><td>~35x</td><td>EPS ~$0.95 추정 (신공장 가동)</td></tr>
+<tr><td>FY2028E PER (Bull)</td><td>~30x</td><td>EPS ~$1.10 추정</td></tr>
+<tr><td>업종 평균 Forward PER</td><td>~25-30x</td><td>성장 항공우주 기업</td></tr>
+</table>
+<p><strong>해석</strong>: 현재 밸류에이션은 <strong>FY2028E 이익 기준으로도 30-35x</strong> — 업종 상단. 시장이 PKE를 항공우주 "성장주"로 완전히 재평가한 상태. FY2028 EPS $1.10 달성 시에야 업종 평균 PER 수준.</p>
+<h3>S4-4. 3시나리오 밸류에이션</h3>
+<table>
+<tr><th>시나리오</th><th>확률</th><th>가정</th><th>FY28E EBITDA</th><th>EV/EBITDA</th><th>1년 후 주가</th></tr>
+<tr><td><strong>Bull</strong></td><td>25%</td><td>LEAP 증산 초과 + 방산 서프라이즈 + 신공장 조기 완공. FY28 매출 $120M+</td><td>$35M</td><td>28x</td><td><strong>$52</strong></td></tr>
+<tr><td><strong>Base</strong></td><td>50%</td><td>LEAP 순조로운 증산 + 신공장 정상 일정 + 방산 점진 성장. FY28 매출 $100M</td><td>$28M</td><td>23x</td><td><strong>$36</strong></td></tr>
+<tr><td><strong>Bear</strong></td><td>25%</td><td>Boeing 지연 → LEAP 감산 + capex 초과/지연 + GE 집중 리스크 현실화. FY28 매출 $75M</td><td>$20M</td><td>18x</td><td><strong>$20</strong></td></tr>
+</table>
+<p><strong>확률 가중 목표가 = $52×0.25 + $36×0.50 + $20×0.25 = $13.0 + $18.0 + $5.0 = $36.0</strong></p>
+<table>
+<tr><th>항목</th><th>수치</th></tr>
+<tr><td><strong>확률 가중 1년 목표가</strong></td><td><strong>$36.00</strong> (+9.9%)</td></tr>
+<tr><td><strong>이상적 매수가</strong></td><td><strong>$25-28</strong> (Bear 시나리오 대비 30%+ 안전마진)</td></tr>
+<tr><td>현재가 대비 Base 업사이드</td><td>+9.9%</td></tr>
+<tr><td>현재가 대비 Bull 업사이드</td><td>+58.7%</td></tr>
+<tr><td>현재가 대비 Bear 다운사이드</td><td>-39.0%</td></tr>
+</table>
+<h3>비대칭 비율 (Druckenmiller 기준)</h3>
+<table>
+<tr><th>항목</th><th>계산</th></tr>
+<tr><td>상방 기대수익</td><td>($36 - $32.77) × 0.50 + ($52 - $32.77) × 0.25 = $1.62 + $4.81 = <strong>$6.43</strong></td></tr>
+<tr><td>하방 기대손실</td><td>($32.77 - $20) × 0.25 = <strong>$3.19</strong></td></tr>
+<tr><td><strong>비대칭 비율</strong></td><td><strong>2.0 : 1</strong></td></tr>
+</table>
+<table>
+<tr><th>비율</th><th>판정</th></tr>
+<tr><td><strong>2.0:1</strong></td><td><strong>경계선 — 최소 기준(2:1) 충족이나 매력적이지 않음</strong></td></tr>
+</table>
+<blockquote>현재가 $32.77에서 비대칭은 <strong>간신히 2:1</strong>로 적격이나, Bear 시나리오(-39%)의 극단적 하락 폭이 우려. $25-28 진입 시 비대칭 3.2-4.7:1로 크게 개선.</blockquote>
+<hr>
+<h2>S5. 리스크 &amp; Kill Criteria</h2>
+<h3>S5-1. 리스크 매트릭스</h3>
+<table>
+<tr><th>리스크</th><th>확률</th><th>영향도</th><th>종합</th><th>대응</th></tr>
+<tr><td><strong>GE 고객 집중 (매출 40%)</strong></td><td>중 (30%)</td><td>극대</td><td><strong>고</strong></td><td>LTA 2029 만료 전 갱신 여부 모니터링. 미갱신 시 매출 40% 소멸</td></tr>
+<tr><td><strong>$50M capex 실행 리스크</strong></td><td>중 (25%)</td><td>중</td><td><strong>중</strong></td><td>비용초과·지연 시 현금 고갈($64M→$0), 차입 필요 가능성</td></tr>
+<tr><td><strong>Boeing 생산 지연 → LEAP 감산</strong></td><td>중 (20%)</td><td>고</td><td><strong>중</strong></td><td>Boeing 737 MAX 생산 속도 정상화 지연 시 LEAP-1B 수요 둔화</td></tr>
+<tr><td><strong>고밸류에이션 디레이팅</strong></td><td>고 (40%)</td><td>중</td><td><strong>중고</strong></td><td>P/E 76x, EV/EBITDA 43x → 실적 miss 시 30-50% 주가 하락 가능</td></tr>
+<tr><td><strong>항공산업 대불황</strong></td><td>저 (10%)</td><td>극대</td><td><strong>중저</strong></td><td>유가 급등+경기침체 → 항공기 주문 취소 → 소재 수요 급감</td></tr>
+<tr><td><strong>C2B fabric 관세 리스크</strong></td><td>중 (25%)</td><td>저</td><td><strong>저</strong></td><td>유럽 원산지 → 관세 부과 시 pass-through이나 경쟁력 약화</td></tr>
+<tr><td><strong>Sole source 과대평가 리스크</strong></td><td>중 (25%)</td><td>중</td><td><strong>중</strong></td><td>시장이 PKE를 "대체 불가 병목"으로 과대 포장 → 실제 대체 인증 2-5년 가능. 내러티브 붕괴 시 밸류에이션 급락</td></tr>
+<tr><td><strong>대형 경쟁자 니치 진입</strong></td><td>저 (10%)</td><td>중</td><td><strong>저</strong></td><td>Hexcel이 필름 접착제 시장 적극 진출 시 가격 경쟁</td></tr>
+</table>
+<h3>S5-2. Kill Criteria</h3>
+<table>
+<tr><th>#</th><th>조건</th><th>측정방법</th><th>발동 시 행동</th></tr>
+<tr><td><strong>KC-1</strong></td><td>GE LEAP LTA <strong>2029 만료 후 미갱신 공시</strong> 또는 조기 종료</td><td>IR/SEC Filing</td><td><strong>전량 매도</strong> — 매출 40% 소멸 = 기업 가치 근본 훼손</td></tr>
+<tr><td><strong>KC-2</strong></td><td>2분기 연속 매출 YoY <strong>-15% 이상</strong> (C2B 제외 유기적 기준)</td><td>분기 실적</td><td><strong>포지션 50% 축소</strong>, 성장 스토리 재검증</td></tr>
+<tr><td><strong>KC-3</strong></td><td>신공장 완공 <strong>18개월 이상 지연</strong> 공시 (H2 2028 → 2030 이후)</td><td>IR 공시/실적 발표</td><td><strong>포지션 30% 축소</strong> — 성장 타임라인 근본적 변경</td></tr>
+</table>
+<h3>S5-3. Pre-mortem: "투자 실패의 3가지 시나리오"</h3>
+<ol>
+<li><strong>"LEAP의 함정"</strong>: GE Aerospace가 차세대 엔진(RISE 등) 개발 가속 → LEAP 생산이 2028-2030 피크 후 감소 전환. PKE가 $50M 투자해 건설한 신공장은 LEAP 감산기에 가동률 50% 미만으로 유지비 부담. 장기 계약(LTA) 만료 후 갱신 조건 악화.</li>
+</ol>
+<ol>
+<li><strong>"니치의 한계"</strong>: $200M 매출 목표는 "알려진 프로그램+알려지지 않은 기회"에 기반한 경영진의 희망적 추정. 실제로 방산 프로그램은 의회 예산 승인에 좌우되며, Valkyrie·SM-6 등 신규 프로그램은 양산까지 5-7년 소요. FY2031에 $120-130M 수준에 정체 → P/E 30x 이하로 디레이팅, 주가 $18-22로 하락.</li>
+</ol>
+<ol>
+<li><strong>"밸류에이션 정상화"</strong>: 52주 +147% 랠리는 소형주 모멘텀 과열. 금리 인상 반전, 항공 섹터 순환 매도, 또는 단순히 실적 시즌 miss → 기관 투자자 이탈. P/E 76x → 35x 정상화만으로 주가 50% 하락 ($32.77 → $15-16). 펀더멘털 변화 없이 밸류에이션만으로 반토막 가능.</li>
+</ol>
+<hr>
+<h2>S6. 카탈리스트 &amp; 모니터링</h2>
+<h3>S6-1. 카탈리스트 타임라인</h3>
+<table>
+<tr><th>시기</th><th>카탈리스트</th><th>기대 영향</th></tr>
+<tr><td><strong>2026.05</strong></td><td>Q4 FY2026 실적 + FY2027 가이던스 발표</td><td>↑↑ 첫 정식 FY2027 가이던스 — 성장 궤적 확인 핵심</td></tr>
+<tr><td><strong>2026.H2</strong></td><td>신공장 건설 착공/진행 업데이트</td><td>↑ 실행력 확인</td></tr>
+<tr><td><strong>2026.Q3</strong></td><td>A320neo 인도 속도 월 65-70대 확인</td><td>↑ LEAP 수요 트래킹</td></tr>
+<tr><td><strong>2027.H1</strong></td><td>FY2027 중간 실적 — capex 진행 vs 매출 성장</td><td>→ 전환기 불확실성</td></tr>
+<tr><td><strong>2027.H2</strong></td><td><strong>신공장 완공 (calendar 2027 H2)</strong></td><td>↑↑ 마일스톤 달성</td></tr>
+<tr><td><strong>2028.H2</strong></td><td><strong>신공장 가동 개시</strong></td><td>↑↑↑ 성장 가속 전환점</td></tr>
+<tr><td><strong>2029</strong></td><td>GE LEAP LTA 만료 → <strong>갱신 여부</strong></td><td>↑↑↑ or ↓↓↓ 최대 카탈리스트/리스크</td></tr>
+</table>
+<h3>S6-2. 분기 모니터링 체크리스트</h3>
+<table>
+<tr><th>항목</th><th>확인 방법</th><th>경고 신호</th></tr>
+<tr><td>GE Aerospace 매출</td><td>실적 발표</td><td>분기 $7M 미만 (현재 $7.5M)</td></tr>
+<tr><td>유기적 매출 성장률</td><td>실적 발표 (C2B 제외)</td><td>YoY +10% 미만</td></tr>
+<tr><td>Gross Margin</td><td>실적 발표</td><td>30% 미만 (C2B 제외 기준)</td></tr>
+<tr><td>현금 잔고</td><td>분기 재무제표</td><td>$25M 미만 (capex 후 버퍼 부족)</td></tr>
+<tr><td>신공장 진행</td><td>IR 업데이트/실적 발표</td><td>일정 6개월+ 지연</td></tr>
+<tr><td>LEAP 인도 대수</td><td>GE 실적 발표</td><td>분기 450대 미만</td></tr>
+<tr><td>A320neo 인도 속도</td><td>Airbus 월간 인도 공시</td><td>월 55대 미만 (램프 둔화)</td></tr>
+<tr><td>방산 수주 뉴스</td><td>프레스 릴리스</td><td>PAC-3/SM-6 감산 뉴스</td></tr>
+</table>
+<hr>
+<h2>META. 포트폴리오 레이어</h2>
+<h3>포지션 사이징</h3>
+<table>
+<tr><th>단계</th><th>조정</th><th>비중</th></tr>
+<tr><td>기본 (TYPE A)</td><td>성장주 기본</td><td>3%</td></tr>
+<tr><td>매크로 조정</td><td>+1% (8.1점, 강한 순풍)</td><td>4%</td></tr>
+<tr><td>해자 강도</td><td>+0% (NARROW, 12/25)</td><td>4%</td></tr>
+<tr><td>비대칭 비율</td><td>-1% (2.0:1, 경계선)</td><td>3%</td></tr>
+<tr><td>밸류에이션</td><td>-1% (P/E 76x, 극단적 프리미엄)</td><td><strong>2%</strong></td></tr>
+<tr><td>유동성</td><td>-0.5% (소형주, 일 거래량 제한)</td><td><strong>1.5%</strong></td></tr>
+</table>
+<h3>포지션 역할</h3>
+<table>
+<tr><th>항목</th><th>내용</th></tr>
+<tr><td><strong>역할</strong></td><td><strong>Tactical</strong> — 항공우주 소재 사이클 + 방산 성장</td></tr>
+<tr><td><strong>보유 기간</strong></td><td>12-24개월 (신공장 가동까지)</td></tr>
+<tr><td><strong>진입 전략</strong></td><td><strong>현재가 진입 불가</strong> → $25-28 조정 시 Tier 1 진입</td></tr>
+<tr><td><strong>목표 비중</strong></td><td>1.5-3% (조정 후 진입 시)</td></tr>
+<tr><td><strong>Exit 트리거</strong></td><td>KC-1/2/3 발동 또는 Bull 시나리오 $50+ 도달</td></tr>
+</table>
+<h3>매수 계획 (Tier 진입)</h3>
+<table>
+<tr><th>Tier</th><th>가격</th><th>비중</th><th>비대칭 비율</th><th>조건</th></tr>
+<tr><td><strong>대기</strong></td><td>$32.77 (현재)</td><td>0%</td><td>2.0:1</td><td><strong>진입 불가</strong> — 밸류에이션 과열</td></tr>
+<tr><td>Tier 1</td><td>$25-28</td><td>1.5%</td><td>3.2-4.7:1</td><td>시장 조정 or 섹터 로테이션</td></tr>
+<tr><td>Tier 2</td><td>$20-24</td><td>+1.5% (총 3%)</td><td>5.0+:1</td><td>실적 miss 또는 매크로 충격</td></tr>
+</table>
+<hr>
+<h2>FINAL DECISION CHECKLIST</h2>
+<h3>Must-Pass 조건 (4/4 충족 필수)</h3>
+<table>
+<tr><th>#</th><th>조건</th><th>결과</th></tr>
+<tr><td>1</td><td>매크로 정렬도 ≥ 6.0</td><td>✅ <strong>8.1</strong> — 항공+방산 이중 순풍</td></tr>
+<tr><td>2</td><td>Kill Criteria 미발동</td><td>✅ 현재 미발동</td></tr>
+<tr><td>3</td><td>재무건전성 5/7 이상</td><td>⚠️ <strong>4/7</strong> — FCF, ROE, 이익의 질 MARGINAL</td></tr>
+<tr><td>4</td><td>비대칭 비율 ≥ 2:1</td><td>⚠️ <strong>2.0:1</strong> — 최소 기준, 매력 부족</td></tr>
+</table>
+<p><strong>Must-Pass: 2/4 PASS, 2/4 MARGINAL</strong> → 조건부 통과</p>
+<h3>Reinforcing 조건 (보강)</h3>
+<table>
+<tr><th>#</th><th>조건</th><th>결과</th></tr>
+<tr><td>1</td><td>해자 WIDE 이상</td><td>❌ NARROW (12/25)</td></tr>
+<tr><td>2</td><td>경영진 점수 ≥ 80</td><td>❌ 74 (PASS이나 80 미달)</td></tr>
+<tr><td>3</td><td>10년 테스트 3/3</td><td>⚠️ 2.5/3</td></tr>
+<tr><td>4</td><td>내년 &gt; 올해</td><td>✅ <strong>FY2028 &gt;&gt; FY2027</strong></td></tr>
+<tr><td>5</td><td>Peer 대비 저평가</td><td>❌ <strong>모든 Peer 대비 극단적 프리미엄</strong></td></tr>
+<tr><td>6</td><td>카탈리스트 3개월 내 존재</td><td>✅ Q4 실적 + FY2027 가이던스 (2026.05)</td></tr>
+</table>
+<p><strong>Reinforcing: 2/6 충족</strong></p>
+<hr>
+<h2>최종 판정</h2>
+<table>
+<tr><th>항목</th><th>내용</th></tr>
+<tr><td><strong>판정</strong></td><td><strong>WAIT</strong> (조정 시 BUY)</td></tr>
+<tr><td><strong>현재가</strong></td><td>$32.77 — 밸류에이션 과열 (P/E 76x, EV/EBITDA 43x)</td></tr>
+<tr><td><strong>이상적 매수가</strong></td><td><strong>$25-28</strong> (비대칭 3.2-4.7:1)</td></tr>
+<tr><td><strong>1년 목표가</strong></td><td>$36 (확률 가중), Bull $52 / Bear $20</td></tr>
+<tr><td><strong>비대칭 비율</strong></td><td>2.0:1 (현재가) → 3.2:1+ ($28 진입 시)</td></tr>
+<tr><td><strong>핵심 모니터링</strong></td><td>Q4 실적(2026.05), FY2027 가이던스, 신공장 진행, GE LTA 갱신(2029)</td></tr>
+</table>
+<blockquote><strong>요약</strong>: Park Aerospace는 LEAP 엔진 + 방산 미사일이라는 <strong>두 개의 강력한 구조적 성장 엔진</strong>을 보유한 우수한 니치 기업. 무부채 경영, 41년 배당, 30년 CEO는 안정성의 증거. <strong>$200M 매출 목표는 현실적</strong>이나, 현재 주가는 이미 이 성장을 <strong>상당 부분 반영</strong>(P/E 76x). 펀더멘털 변화 없이 밸류에이션만으로 50% 하락 가능한 수준. <strong>$25-28 조정 시 적극 매수</strong>, 현재는 관망.</blockquote>
+<hr>
+<p><em>분석 프레임워크: PRISM v2.0</em></p>
+<p><em>분석자: Claude PRISM System</em></p>
+<p><em>다음 리뷰: Q4 FY2026 실적 발표 후 (2026년 5월)</em></p>
+        <div class="disclaimer">본 글은 공개 정보 기반의 투자 참고 자료이며, 투자 권유가 아닙니다.</div>
+        </div>
     </div>
-    <div class="meta-item">
-      <span class="meta-label">매수존</span>
-      <span class="meta-value" style="color:var(--green)">$25–28</span>
-    </div>
-    <div class="meta-item">
-      <span class="meta-label">시총</span>
-      <span class="meta-value">$681M</span>
-    </div>
-    <div class="meta-item">
-      <span class="meta-label">확신도</span>
-      <span class="meta-value stars">&#9733;&#9733;&#9733;&#9734;&#9734;</span>
-    </div>
-  </div>
-</div>
+    <a href="#" class="back-top" id="backTop">&uarr;</a>
+    <script>
+        // TOC generation
+        const toc = document.getElementById('toc');
+        const headings = document.querySelectorAll('h2, h3');
+        headings.forEach((h, i) => {
+            h.id = 'section-' + i;
+            const a = document.createElement('a');
+            a.href = '#section-' + i;
+            a.textContent = h.textContent;
+            if (h.tagName === 'H3') a.classList.add('h3');
+            toc.appendChild(a);
+        });
 
-<!-- VERDICT -->
-<div class="verdict-box">
-<span class="hl">현주가:</span>              <span class="orange">$34.16</span> (2026.05.14)
-<span class="hl">포지션:</span>              <span class="orange">WAIT → 조정 시 BUY $25-28</span>
-<span class="hl">적정 비중:</span>            1.5~3% (조정 후 진입 시)
-<div class="line"></div>
-<span class="hl">$34 진입 R/R:</span>        비대칭 2.0:1 (기대수익률 <span class="orange">+3.9%</span>, 매력 부족)
-<span class="hl">$28 진입 R/R:</span>        비대칭 <span class="green">3.6:1</span> (기대수익률 <span class="green">+26.8%</span>, 매력적)
-<div class="line"></div>
-<span class="hl">P/E (TTM):</span>           78x (Peer 대비 100%+ 프리미엄)
-<span class="hl">EV/EBITDA (TTM):</span>     44x
-<span class="hl">무부채:</span>              Net Cash $63M, D/E 0.3%
-<span class="hl">매출 성장률:</span>          +20% YoY
-<div class="line"></div>
-관망 이유: 좋은 기업, 비싼 가격.
-FY2028 신공장 가동이 진짜 변곡점.
-</div>
+        // Active TOC highlight
+        const tocLinks = toc.querySelectorAll('a');
+        const observer = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    tocLinks.forEach(l => l.classList.remove('active'));
+                    const id = entry.target.id;
+                    const link = toc.querySelector('a[href="#' + id + '"]');
+                    if (link) link.classList.add('active');
+                }
+            });
+        }, { rootMargin: '-80px 0px -70% 0px' });
+        headings.forEach(h => observer.observe(h));
 
-<!-- TOC -->
-<div class="toc">
-  <div class="toc-title">목차</div>
-  <a href="#s0"><span class="num">0</span>산업개요</a>
-  <a href="#s1"><span class="num">1</span>기업개요 — 연혁 · 경영진 · 주주구성</a>
-  <a href="#s2"><span class="num">2</span>뭐하는 기업인가? — 컨콜 · BM · 투자아이디어 · 리스크</a>
-  <a href="#s3"><span class="num">3</span>손익추이 · 현금흐름 · 재무제표</a>
-  <a href="#s4"><span class="num">4</span>밸류에이션 — PER/EV 밴드 · Peer · 실적 시나리오</a>
-  <a href="#s5"><span class="num">5</span>매수 시나리오 &amp; 적정가</a>
-  <a href="#s6"><span class="num">6</span>증권사 크로스체크</a>
-  <a href="#s7"><span class="num">7</span>손익비 구간 판단 · 엘리어트 파동</a>
-  <a href="#s8"><span class="num">8</span>선행지표</a>
-</div>
-
-<!-- 0. 산업개요 -->
-<div class="section" id="s0">
-  <div class="section-title">Section 0</div>
-  <h2>산업개요</h2>
-
-  <h3>밸류체인 구조</h3>
-  <div class="flow">
-    [원자재] 탄소섬유·에폭시수지·특수직물<br>
-    &darr;<br>
-    [1차 소재가공] <span class="highlight">★ Park Aerospace (필름접착제, 어블레이티브)</span>, Hexcel, Solvay<br>
-    &darr;<br>
-    [구조물 제조] Albany International (팬케이스), Ducommun, Spirit AeroSystems<br>
-    &darr;<br>
-    [엔진/무기 OEM] GE Aerospace (LEAP), Lockheed Martin (PAC-3), Raytheon (SM-6)<br>
-    &darr;<br>
-    [최종 플랫폼] A320neo, 737 MAX, C919, PAC-3, SM-6, LRASM
-  </div>
-
-  <h3>TAM / SAM</h3>
-  <div class="table-wrap">
-    <table>
-      <tr><td>글로벌 항공우주 복합소재</td><td><strong>$30.3B</strong> (2025) → <strong>$53.4B</strong> (2030), CAGR 12.0%</td></tr>
-      <tr><td>PKE SAM (필름접착제 + 어블레이티브)</td><td>~$1-2B</td></tr>
-      <tr><td>PKE 현재 매출 → 목표</td><td>$73M → <strong>$200M</strong> (FY2031)</td></tr>
-    </table>
-  </div>
-
-  <h3>구조적 성장 동인 — "왜 지금?"</h3>
-  <ol>
-    <li><strong>LEAP 엔진 슈퍼사이클</strong>: A320neo 월 75대 목표(2027), 수주잔고 23,000대+, LEAP-1A 64.5% 점유</li>
-    <li><strong>미사일 비축량 고갈</strong>: 우크라이나+중동+대만 3전선 → PAC-3 생산 600→2,000발/년 (3.3배)</li>
-    <li><strong>P&W GTF 신뢰성 문제</strong>: 경쟁 엔진 이슈 → LEAP 점유율 상승</li>
-    <li><strong>복합소재 침투율 상승</strong>: 금속 → 복합소재 전환 가속</li>
-  </ol>
-</div>
-
-<!-- 1. 기업개요 -->
-<div class="section" id="s1">
-  <div class="section-title">Section 1</div>
-  <h2>기업개요</h2>
-
-  <h3>회사연혁</h3>
-  <div class="table-wrap">
-    <table>
-      <thead><tr><th>연도</th><th>이벤트</th></tr></thead>
-      <tbody>
-        <tr><td>1954</td><td>Park Electrochemical Corp 설립 (PCB + 항공소재 이중 사업)</td></tr>
-        <tr><td>1996</td><td>Brian Shore CEO 취임 (현재까지 30년 재임)</td></tr>
-        <tr><td>2015</td><td><strong>전자사업부 AGC에 매각 ($145M)</strong> — 순수 항공우주 전환</td></tr>
-        <tr><td>2019</td><td>Park Aerospace Corp으로 사명 변경. GE LTA 체결 (2029)</td></tr>
-        <tr><td>2022.01</td><td><strong>ArianeGroup C2B fabric 북미 독점 유통 계약</strong></td></tr>
-        <tr class="hl"><td>2026.01</td><td><strong>$50M 신공장 투자 발표</strong> (Midwest 120K sqft, H2 2028 가동)</td></tr>
-        <tr><td>2026.01</td><td>$50M ATM 주식 공모 발표</td></tr>
-      </tbody>
-    </table>
-  </div>
-
-  <h3>CEO · 경영진</h3>
-  <div class="table-wrap">
-    <table>
-      <thead><tr><th>이름</th><th>직책</th><th>특이사항</th></tr></thead>
-      <tbody>
-        <tr><td>Brian E. Shore (73)</td><td>Chairman & CEO</td><td>30년 재임. 보수 $205K (극보수적). 지분 5.07%</td></tr>
-        <tr><td>Mark A. Esquivel (52)</td><td>President & COO</td><td>운영 실행 총괄. Shore 후계자로 추정</td></tr>
-        <tr><td>Christopher J. Goldner (56)</td><td>VP Finance</td><td>보수 $235K</td></tr>
-        <tr><td>Constantine Petropoulos (47)</td><td>SVP, Chief Legal & Capital Markets</td><td>보수 $340K (최고) — 자본시장/M&A 중시</td></tr>
-      </tbody>
-    </table>
-  </div>
-
-  <h3>주주구성</h3>
-  <div class="table-wrap">
-    <table>
-      <tr><td>기관 투자자</td><td>86.4%</td></tr>
-      <tr><td>내부자</td><td>9.6% (CEO Shore 5%+ 포함)</td></tr>
-      <tr><td>발행주식</td><td>20,965,144주 (유통 ~19.9M)</td></tr>
-      <tr><td>공매도</td><td>871K주 (유통 대비 5.6%, Short Ratio 3.6일)</td></tr>
-    </table>
-  </div>
-</div>
-
-<!-- 2. 뭐하는 기업인가 -->
-<div class="section" id="s2">
-  <div class="section-title">Section 2</div>
-  <h2>뭐하는 기업인가?</h2>
-
-  <h3>BM (비즈니스 모델)</h3>
-  <div class="table-wrap">
-    <table>
-      <thead><tr><th>세그먼트</th><th>제품</th><th>FY2026E 매출</th><th>비중</th><th>고객</th></tr></thead>
-      <tbody>
-        <tr><td>GE Aerospace (LEAP)</td><td>팬케이스 필름 접착제, 낙뢰보호재</td><td>$29.0-29.5M</td><td>~40%</td><td>GE / Middle River</td></tr>
-        <tr><td>방산/우주</td><td>어블레이티브 (PAC-3, SM-6), 라돔, 노즈콘</td><td>~$20-22M</td><td>~28%</td><td>Lockheed, Raytheon, Kratos</td></tr>
-        <tr><td>기타 상업항공</td><td>Boeing/Airbus 구조물 소재</td><td>~$14-15M</td><td>~19%</td><td>Airbus, Sikorsky</td></tr>
-        <tr><td>C2B Fabric 유통</td><td>RAYCARB C2B (ArianeGroup)</td><td>~$9.8M</td><td>~13%</td><td>미사일 하청업체</td></tr>
-      </tbody>
-    </table>
-  </div>
-
-  <h3>핵심 경쟁우위 / 해자</h3>
-  <ol>
-    <li><strong>QPL 인증 전환비용</strong> — 2-5년 재인증 필요, 비행안전 직결</li>
-    <li><strong>GE LEAP LTA 2029</strong> — 장기 매출 가시성</li>
-    <li><strong>PAC-3 sole source qualified</strong> — 어블레이티브 소재</li>
-    <li><strong>소형 기업 민첩성</strong> — 대형 경쟁사 관료주의 vs PKE 즉각 대응</li>
-    <li><strong>무부채 + 현금 $64M</strong> — 재무적 유연성</li>
-  </ol>
-
-  <h3>최근 컨콜 — Q3 FY2026 (2026.01.13)</h3>
-  <ul>
-    <li>매출 $17.3M (<span class="badge badge-green">+20.3% YoY</span>, 가이던스 내)</li>
-    <li>GPM <strong>34.1%</strong> (최근 최고)</li>
-    <li>Adj EBITDA $4.2M (가이던스 <span class="badge badge-green">상회</span>)</li>
-    <li>EPS $0.15 (전년 $0.08 대비 <span class="badge badge-green">+87.1%</span>)</li>
-    <li>GE Aerospace 프로그램: $7.5M (Q3), FY2026 연간 $29.0-29.5M 전망</li>
-    <li><strong>$50M Midwest 신공장 투자 발표</strong> (120K sqft, H2 2028 가동)</li>
-    <li>Q4 가이던스: 매출 $23.5-24.5M, EBITDA $4.75-5.25M (C2B ~$9.8M 포함)</li>
-    <li>FY2026 전체: 매출 $72.5-73.5M, Adj EBITDA $17.5-18.0M</li>
-  </ul>
-
-  <blockquote>
-    <strong>CEO Shore:</strong> "We are the company of yes" — GE가 "redundant factory" 요구 시 현장 즉시 수락 → 신뢰 확보. 신공장 정상운전 $220M, 이론적 최대 $320M.
-  </blockquote>
-
-  <h3>투자아이디어 5가지</h3>
-  <ol>
-    <li><strong>LEAP 슈퍼사이클의 직접 수혜</strong>: 수주잔고 23,000대, 팬케이스 소재 sole source. FY2026 GE 매출 $29.5M은 시작에 불과</li>
-    <li><strong>방산 미사일 비축 보충의 병목 소재</strong>: PAC-3 생산 3.3배 확대, 로켓 모터 어블레이티브 sole source</li>
-    <li><strong>$50M 신공장으로 용량 2배 → J-curve</strong>: 현재 용량 한계가 매출 ceiling. 신공장 시 $220M (현재의 3배)</li>
-    <li><strong>무부채·캐시리치 자기자본 투자</strong>: $64M 현금, 차입 없이 $50M 투자</li>
-    <li><strong>P&W GTF 문제 → LEAP 점유율 상승</strong>: 경쟁 엔진 신뢰성 이슈가 구조적 수혜</li>
-  </ol>
-
-  <h3>촉매 이벤트</h3>
-  <div class="table-wrap">
-    <table>
-      <thead><tr><th>시기</th><th>이벤트</th></tr></thead>
-      <tbody>
-        <tr><td>2026.05</td><td>Q4 실적 + FY2027 첫 가이던스</td></tr>
-        <tr><td>2026.H2</td><td>신공장 착공/진행 업데이트</td></tr>
-        <tr><td>2027.H2</td><td>신공장 완공</td></tr>
-        <tr class="hl"><td><strong>2028.H2</strong></td><td><strong>신공장 가동 개시 — 성장 변곡점</strong></td></tr>
-        <tr><td>2029</td><td>GE LTA 갱신 여부</td></tr>
-      </tbody>
-    </table>
-  </div>
-
-  <h3>리스크포인트</h3>
-  <div class="table-wrap">
-    <table>
-      <thead><tr><th>구분</th><th>내용</th></tr></thead>
-      <tbody>
-        <tr><td><span class="badge badge-red">밸류에이션</span></td><td>P/E 78x, EV/EBITDA 44x — Peer 대비 100%+. 52주 +149% 과열</td></tr>
-        <tr><td><span class="badge badge-orange">산업</span></td><td>Boeing 생산 지연 → LEAP 감산 가능. 방산 예산 의회 승인 불확실. C2B 관세 리스크</td></tr>
-        <tr><td><span class="badge badge-red">기업 고유</span></td><td>GE 고객 집중 40%. CEO 73세 후계 리스크. 직원 132명 key person risk. $50M capex 실행 리스크</td></tr>
-        <tr><td><span class="badge badge-orange">내러티브</span></td><td>"대체 불가 병목"은 과장 — 실제 대체 인증 2-5년 가능</td></tr>
-      </tbody>
-    </table>
-  </div>
-</div>
-
-<!-- 3. 재무 -->
-<div class="section" id="s3">
-  <div class="section-title">Section 3</div>
-  <h2>손익추이 · 현금흐름 · 재무제표</h2>
-
-  <h3>손익계산서 (연도별)</h3>
-  <div class="table-wrap">
-    <table>
-      <thead><tr><th>항목</th><th>FY2020</th><th>FY2021</th><th>FY2022</th><th>FY2023</th><th>FY2024</th><th>FY2025</th><th>FY2026E</th></tr></thead>
-      <tbody>
-        <tr><td>Revenue ($M)</td><td>60.0</td><td>46.3</td><td>53.6</td><td>54.1</td><td>56.0</td><td>62.0</td><td><strong>72.5-73.5</strong></td></tr>
-        <tr><td>EBITDA ($M)</td><td>—</td><td>—</td><td>12.8</td><td>11.1</td><td>9.8</td><td>11.2</td><td><strong>17.5-18.0</strong></td></tr>
-        <tr><td>Net Income ($M)</td><td>10.2</td><td>5.2</td><td>8.5</td><td>10.7</td><td>7.5</td><td>5.9</td><td>~10.2</td></tr>
-        <tr><td>EPS ($)</td><td>0.50</td><td>0.25</td><td>0.41</td><td>0.52</td><td>0.37</td><td>0.29</td><td>~0.51</td></tr>
-        <tr><td>GPM (%)</td><td>—</td><td>—</td><td>33.4</td><td>30.5</td><td>29.5</td><td>28.4</td><td>~28.5</td></tr>
-        <tr><td>OPM (%)</td><td>17.9</td><td>11.9</td><td>21.8</td><td>18.4</td><td>15.0</td><td>15.2</td><td>~16.4</td></tr>
-      </tbody>
-    </table>
-  </div>
-  <p style="font-size:12px; color:var(--text-muted);">FY2023 NPM 19.8%는 세율 2.7%(R&D tax credit) 효과. FY2025 NPM 9.5%는 세율 38.1%(일회성) 효과.</p>
-
-  <h3>손익계산서 (분기별)</h3>
-  <div class="table-wrap">
-    <table>
-      <thead><tr><th>항목</th><th>FQ3'25</th><th>FQ4'25</th><th>FQ1'26</th><th>FQ2'26</th><th>FQ3'26</th><th>FQ4'26E</th></tr></thead>
-      <tbody>
-        <tr><td>Revenue ($M)</td><td>14.4</td><td>16.9</td><td>15.4</td><td>16.4</td><td>17.3</td><td><strong>23.5-24.5</strong></td></tr>
-        <tr><td>Gross Profit ($M)</td><td>3.8</td><td>5.0</td><td>4.7</td><td>5.1</td><td>5.9</td><td>~5.5E</td></tr>
-        <tr><td>Net Income ($M)</td><td>1.6</td><td>1.2</td><td>2.1</td><td>2.4</td><td>3.0</td><td>~2.7E</td></tr>
-        <tr><td>EPS ($)</td><td>0.08</td><td>0.06</td><td>0.10</td><td>0.12</td><td><strong>0.15</strong></td><td>~0.13E</td></tr>
-        <tr><td>GPM (%)</td><td>26.6</td><td>29.3</td><td>30.6</td><td>31.2</td><td><span class="badge badge-green">34.1</span></td><td>~23E*</td></tr>
-      </tbody>
-    </table>
-  </div>
-  <p style="font-size:12px; color:var(--text-muted);">*FQ4'26E: C2B fabric ~$9.8M(극저마진) 포함 → 전체 마진 압축. 핵심 사업 마진 유지.</p>
-
-  <h3>현금흐름표 (연도별)</h3>
-  <div class="table-wrap">
-    <table>
-      <thead><tr><th>항목</th><th>FY2022</th><th>FY2023</th><th>FY2024</th><th>FY2025</th></tr></thead>
-      <tbody>
-        <tr><td>Operating CF ($M)</td><td>8.2</td><td>6.5</td><td>4.4</td><td>4.7</td></tr>
-        <tr><td>CapEx ($M)</td><td>(4.4)</td><td>(1.0)</td><td>(0.6)</td><td>(0.9)</td></tr>
-        <tr><td>Free Cash Flow ($M)</td><td><strong>3.8</strong></td><td><strong>5.4</strong></td><td><strong>3.8</strong></td><td><strong>3.8</strong></td></tr>
-        <tr><td>Dividends ($M)</td><td>(8.2)</td><td>(8.2)</td><td>(30.6)*</td><td>(10.1)</td></tr>
-        <tr><td>Buyback ($M)</td><td>0</td><td>0</td><td>(2.9)</td><td>(4.3)</td></tr>
-      </tbody>
-    </table>
-  </div>
-  <p style="font-size:12px; color:var(--text-muted);">*FY2024 배당: $1.00 특별배당 + 정기배당 $0.50 포함</p>
-
-  <h3>대차대조표</h3>
-  <div class="table-wrap">
-    <table>
-      <thead><tr><th>항목</th><th>FY2022</th><th>FY2023</th><th>FY2024</th><th>FY2025</th><th>Latest (Nov25)</th></tr></thead>
-      <tbody>
-        <tr><td>Total Assets ($M)</td><td>160.9</td><td>159.3</td><td>132.3</td><td>122.1</td><td>118.1</td></tr>
-        <tr><td>Cash & ST Invest ($M)</td><td>110.4</td><td>105.4</td><td>77.2</td><td>68.8</td><td>63.6</td></tr>
-        <tr><td>Total Debt ($M)</td><td>0.2</td><td>0.2</td><td>0.1</td><td>0.4</td><td>0.3</td></tr>
-        <tr><td>Total Equity ($M)</td><td>135.6</td><td>115.9</td><td>112.9</td><td>107.2</td><td>106.6</td></tr>
-        <tr><td>부채비율 (D/E)</td><td>0.2%</td><td>0.2%</td><td>0.1%</td><td>0.3%</td><td><strong>0.3%</strong></td></tr>
-        <tr><td>유동비율</td><td>20.1x</td><td>4.4x</td><td>10.2x</td><td>9.7x</td><td><strong>15.8x</strong></td></tr>
-        <tr><td>Net Cash ($M)</td><td>110.1</td><td>105.2</td><td>77.1</td><td>68.5</td><td><strong>63.2</strong></td></tr>
-      </tbody>
-    </table>
-  </div>
-
-  <h3>이상치 분석</h3>
-  <div class="table-wrap">
-    <table>
-      <thead><tr><th>항목</th><th>변동</th><th>원인</th><th>지속?</th></tr></thead>
-      <tbody>
-        <tr><td>FY2025 Tax Rate 38.1%</td><td>전년 20.8% 대비 +83%</td><td>이연법인세 조정</td><td>일시적 → FY2026 25-26% 정상화</td></tr>
-        <tr><td>FY2023 Tax Rate 2.7%</td><td>전년 28.2% 대비 -90%</td><td>R&D tax credit 대규모 반영</td><td>일시적</td></tr>
-        <tr><td>Q3 FY2026 GPM 34.1%</td><td>전분기 31.2% 대비 +9.3%p</td><td>제품 믹스 개선</td><td><span class="badge badge-green">구조적 개선</span> — 방산 고마진↑</td></tr>
-        <tr><td>Q2 FY2026 OCF -$2.1M</td><td>적자 전환</td><td>분기 세금 납부 $6.2M 집중</td><td>일시적 (Q3에 +$5.1M 복귀)</td></tr>
-      </tbody>
-    </table>
-  </div>
-</div>
-
-<!-- 4. 밸류에이션 -->
-<div class="section" id="s4">
-  <div class="section-title">Section 4</div>
-  <h2>밸류에이션</h2>
-
-  <h3>과거 PER 밴드</h3>
-  <div class="table-wrap">
-    <table>
-      <thead><tr><th>기간</th><th>EPS</th><th>평균주가</th><th>PER</th><th>비고</th></tr></thead>
-      <tbody>
-        <tr><td>FY2020</td><td>$0.50</td><td>~$14</td><td>28x</td><td>COVID 직전 정상기</td></tr>
-        <tr><td>FY2022</td><td>$0.41</td><td>~$11</td><td>27x</td><td>회복 초기</td></tr>
-        <tr><td>FY2023</td><td>$0.52</td><td>~$11</td><td>21x</td><td>실적 피크 (세율 혜택)</td></tr>
-        <tr><td>FY2024</td><td>$0.37</td><td>~$13</td><td>35x</td><td>정상 세율 복귀</td></tr>
-        <tr><td>FY2025</td><td>$0.29</td><td>~$14</td><td>48x</td><td>성장 기대 유입</td></tr>
-        <tr class="hl"><td><strong>FY2026E TTM</strong></td><td>$0.44</td><td><strong>$34.16</strong></td><td><strong>78x</strong></td><td>성장 스토리 완전 반영</td></tr>
-      </tbody>
-    </table>
-  </div>
-  <p><strong>정상 PER 밴드: 21-35x</strong>. 현재 78x는 역사적 상단 대비 123% 초과. 시장이 FY2028-29 이익을 선반영 중.</p>
-
-  <h3>실적 시나리오 (FY2027~FY2029E)</h3>
-  <div class="table-wrap">
-    <table>
-      <thead><tr><th>항목</th><th>Bear</th><th>Base</th><th>Bull</th></tr></thead>
-      <tbody>
-        <tr><td>FY2027E Revenue</td><td>$72M (flat)</td><td>$82M (+12%)</td><td>$92M (+25%)</td></tr>
-        <tr><td>FY2027E EPS</td><td>$0.40</td><td>$0.55</td><td>$0.70</td></tr>
-        <tr><td style="border-top: 2px solid var(--border)">FY2028E Revenue</td><td>$85M</td><td>$105M</td><td>$130M</td></tr>
-        <tr><td>FY2028E EPS</td><td>$0.50</td><td><strong>$0.80</strong></td><td>$1.20</td></tr>
-        <tr><td style="border-top: 2px solid var(--border)">FY2029E Revenue</td><td>$100M</td><td>$140M</td><td>$180M</td></tr>
-        <tr><td>FY2029E EPS</td><td>$0.65</td><td><strong>$1.25</strong></td><td>$1.75</td></tr>
-      </tbody>
-    </table>
-  </div>
-
-  <h3>Peer 비교</h3>
-  <div class="table-wrap">
-    <table>
-      <thead><tr><th>기업</th><th>시총</th><th>PER(FWD)</th><th>EV/EBITDA</th><th>매출성장률</th><th>OPM</th></tr></thead>
-      <tbody>
-        <tr class="hl"><td>PKE</td><td>$681M</td><td><strong>67x</strong></td><td><strong>44x</strong></td><td><strong>+20%</strong></td><td>21%</td></tr>
-        <tr><td>HXL (Hexcel)</td><td>~$7.0B</td><td>~30x</td><td>~22x</td><td>+8%</td><td>~15%</td></tr>
-        <tr><td>DCO (Ducommun)</td><td>~$2.2B</td><td>~25x</td><td>~15x</td><td>+10%</td><td>~12%</td></tr>
-        <tr><td>CRS (Carpenter)</td><td>~$21B</td><td>~36x</td><td>~25x</td><td>+15%</td><td>~22%</td></tr>
-        <tr><td>HEI (Heico)</td><td>~$40B</td><td>~55x</td><td>~35x</td><td>+12%</td><td>~22%</td></tr>
-      </tbody>
-    </table>
-  </div>
-  <p>PKE는 가장 높은 매출 성장률(+20%)이나 EV/EBITDA도 최고(44x). 합리적 Peer 기반: 20-25x, 성장 프리미엄 감안 시 25-30x.</p>
-</div>
-
-<!-- 5. 매수 시나리오 -->
-<div class="section" id="s5">
-  <div class="section-title">Section 5</div>
-  <h2>매수 시나리오 & 적정가</h2>
-
-  <h3>시총 시나리오 매트릭스 (FY2028E)</h3>
-  <div class="table-wrap">
-    <table>
-      <thead><tr><th>시나리오</th><th>FY2028E NI</th><th>PE 25x</th><th>PE 30x</th><th>PE 35x</th></tr></thead>
-      <tbody>
-        <tr><td><span class="badge badge-red">Bear</span> ($10M)</td><td>$10M</td><td style="color:var(--red)">$12.5 (-63%)</td><td style="color:var(--red)">$15.0 (-56%)</td><td style="color:var(--red)">$17.5 (-49%)</td></tr>
-        <tr><td><span class="badge badge-green">Base</span> ($16M)</td><td>$16M</td><td style="color:var(--red)">$20.0 (-41%)</td><td style="color:var(--red)">$24.0 (-30%)</td><td>$28.0 (-18%)</td></tr>
-        <tr><td><span class="badge badge-blue">Bull</span> ($24M)</td><td>$24M</td><td>$30.0 (-12%)</td><td style="color:var(--green)">$36.0 (+5%)</td><td style="color:var(--green)">$42.0 (+23%)</td></tr>
-      </tbody>
-    </table>
-  </div>
-
-  <h3>FY2029E 시나리오 (신공장 full year)</h3>
-  <div class="table-wrap">
-    <table>
-      <thead><tr><th>시나리오</th><th>FY2029E NI</th><th>PE 25x</th><th>PE 30x</th><th>PE 35x</th></tr></thead>
-      <tbody>
-        <tr><td><span class="badge badge-red">Bear</span></td><td>$13M</td><td style="color:var(--red)">$16.3 (-52%)</td><td style="color:var(--red)">$19.5 (-43%)</td><td style="color:var(--red)">$22.8 (-33%)</td></tr>
-        <tr class="hl"><td><span class="badge badge-green">Base</span></td><td>$25M</td><td>$31.3 (-8%)</td><td style="color:var(--green)"><strong>$37.5 (+10%)</strong></td><td style="color:var(--green)">$43.8 (+28%)</td></tr>
-        <tr><td><span class="badge badge-blue">Bull</span></td><td>$35M</td><td style="color:var(--green)">$43.8 (+28%)</td><td style="color:var(--green)">$52.5 (+54%)</td><td style="color:var(--green)"><strong>$61.3 (+79%)</strong></td></tr>
-      </tbody>
-    </table>
-  </div>
-
-  <h3>적정가 레인지</h3>
-  <div class="table-wrap">
-    <table>
-      <thead><tr><th>구분</th><th>가격</th><th>현주가 대비</th><th>산출 근거</th></tr></thead>
-      <tbody>
-        <tr><td>하단 (Bear)</td><td><strong>$15-18</strong></td><td style="color:var(--red)">-47~56%</td><td>Bear NI $10M &times; PE 30x</td></tr>
-        <tr><td>컨센서스</td><td><strong>$26</strong></td><td style="color:var(--red)">-24%</td><td>커버 2사 평균 (시점 불명확)</td></tr>
-        <tr class="hl"><td>Base 적정가</td><td><strong>$30-36</strong></td><td>-12~+5%</td><td>Base NI &times; PE 30-35x</td></tr>
-        <tr><td>상단 (Bull)</td><td><strong>$42-52</strong></td><td style="color:var(--green)">+23~52%</td><td>Bull NI &times; PE 35x or FY2029 Bull</td></tr>
-      </tbody>
-    </table>
-  </div>
-
-  <h3>매수 시나리오 3가지</h3>
-  <div class="table-wrap">
-    <table>
-      <thead><tr><th>시나리오</th><th>매수존</th><th>트리거</th><th>R:R</th><th>확률</th></tr></thead>
-      <tbody>
-        <tr class="hl-green"><td><strong>A. 보수적 (조정 매수)</strong></td><td><strong>$25-28</strong></td><td>Q4 miss 또는 FY2027 가이던스 하회</td><td><strong>3.2:1</strong></td><td>30%</td></tr>
-        <tr><td>B. 역발상 (급락 매수)</td><td>$20-24</td><td>매크로 충격, 소형주 로테이션 아웃</td><td><strong>5.0:1+</strong></td><td>15%</td></tr>
-        <tr><td>C. 공격적 (모멘텀)</td><td>$34-36</td><td>FY2027 가이던스 $85M+ 또는 신규 방산 수주</td><td>1.5:1</td><td>55%</td></tr>
-      </tbody>
-    </table>
-  </div>
-
-  <pre>현재 포지션:     <span style="color:var(--orange)">WAIT (조정 시 BUY $25-28)</span>
-적정 매수가:     $25~$28
-확신도:          <span style="color:var(--yellow)">★★★☆☆</span> (3/5 — 좋은 기업, 비싼 가격)
-적정 비중:       1.5~3% (조정 후 진입 시)</pre>
-
-  <h3>매수 전환 조건</h3>
-  <ol>
-    <li><strong>가격 조정 $28 이하</strong>: 비대칭 3.2:1+ 확보 시 Tier 1 진입</li>
-    <li><strong>FY2027 가이던스 $90M+</strong>: 성장 가속 확인 시 현재가 근처 소규모 진입</li>
-    <li><strong>신규 대형 방산 계약 공시</strong>: 매출 가시성 추가 확보</li>
-  </ol>
-
-  <h3>킬 크라이테리아 (손절)</h3>
-  <ol>
-    <li>GE LEAP LTA 2029 미갱신 또는 조기 종료 → 전량 매도</li>
-    <li>2분기 연속 매출 YoY -15% (C2B 제외) → 50% 축소</li>
-    <li>신공장 18개월+ 지연 → 30% 축소</li>
-  </ol>
-</div>
-
-<!-- 6. 증권사 크로스체크 -->
-<div class="section" id="s6">
-  <div class="section-title">Section 6</div>
-  <h2>증권사 크로스체크</h2>
-
-  <p>커버리지: <strong>Needham</strong> (유일 활성 커버). 소형주 특성상 극히 제한.</p>
-
-  <div class="table-wrap">
-    <table>
-      <thead><tr><th>구분</th><th>가격</th><th>기준</th></tr></thead>
-      <tbody>
-        <tr><td>컨센서스 TP</td><td>$26</td><td>커버 2사 평균 (시점 불명확)</td></tr>
-        <tr><td>내 Base TP (FY2028E)</td><td><strong>$30-36</strong></td><td>Base NI $16M &times; PE 30-35x</td></tr>
-        <tr><td>내 Bull TP (FY2029E)</td><td><strong>$43-52</strong></td><td>Bull NI $35M &times; PE 25-30x</td></tr>
-        <tr><td>현재 주가</td><td>$34.16</td><td>시장이 컨센서스를 이미 30% 초과</td></tr>
-      </tbody>
-    </table>
-  </div>
-
-  <h3>밸류에이션 방법론</h3>
-  <ul>
-    <li>적합한 방법: <strong>EV/EBITDA</strong> (항공우주 소재 표준) + Forward PER</li>
-    <li>GAAP EPS 변동성 큼 (세율 2.7%~38.1%) → Non-GAAP 조정 시 일관성 향상</li>
-    <li>현 단계: <strong>매출 성장률 + Adj EBITDA 마진 조합</strong>이 가장 의미 있는 기준</li>
-  </ul>
-
-  <h3>리레이팅 가능성</h3>
-  <ul>
-    <li>방산 비중 28%→35%+ 시 → 방산 프리미엄 (HEI 55x PER) 일부 적용</li>
-    <li>신공장 후 매출 $100M+ → "소형 니치"에서 "중형 성장"으로 카테고리 변경 → 기관 편입 확대</li>
-    <li>C2B fabric 미국 내 자체 제조 전환 시 → 마진 구조 근본 개선</li>
-  </ul>
-</div>
-
-<!-- 7. 손익비 + 엘리어트 -->
-<div class="section" id="s7">
-  <div class="section-title">Section 7</div>
-  <h2>손익비 구간 판단 · 엘리어트 파동</h2>
-
-  <h3>현재가 $34.16 R:R</h3>
-  <div class="table-wrap">
-    <table>
-      <thead><tr><th>시나리오</th><th>확률</th><th>목표가</th><th>수익률</th><th>기대값</th></tr></thead>
-      <tbody>
-        <tr><td>Bull</td><td>25%</td><td>$52</td><td>+52%</td><td>+13.0%</td></tr>
-        <tr><td>Base</td><td>50%</td><td>$36</td><td>+5%</td><td>+2.7%</td></tr>
-        <tr><td>Bear</td><td>25%</td><td>$18</td><td>-47%</td><td>-11.8%</td></tr>
-        <tr class="hl"><td><strong>합계</strong></td><td></td><td></td><td></td><td><strong>+3.9%</strong> <span class="badge badge-orange">매력 부족</span></td></tr>
-      </tbody>
-    </table>
-  </div>
-
-  <h3>$28 진입 시 R:R</h3>
-  <div class="table-wrap">
-    <table>
-      <thead><tr><th>시나리오</th><th>확률</th><th>목표가</th><th>수익률</th><th>기대값</th></tr></thead>
-      <tbody>
-        <tr><td>Bull</td><td>25%</td><td>$52</td><td>+86%</td><td>+21.4%</td></tr>
-        <tr><td>Base</td><td>50%</td><td>$36</td><td>+29%</td><td>+14.3%</td></tr>
-        <tr><td>Bear</td><td>25%</td><td>$18</td><td>-36%</td><td>-8.9%</td></tr>
-        <tr class="hl-green"><td><strong>합계</strong></td><td></td><td></td><td></td><td><strong>+26.8%</strong> <span class="badge badge-green">매력적 (3.6:1)</span></td></tr>
-      </tbody>
-    </table>
-  </div>
-
-  <h3>엘리어트 파동 분석</h3>
-  <pre>[PKE 월봉 엘리어트 파동 카운트]
-
-$9.13 (Sep 2022) ← Cycle 저점
-    │
-    └── Wave (1): $9.13 → $14.25 (Sep 2023) [+56%]
-            │
-            └── Wave (2): $14.25 → $12.07 (Jun 2024) [-15%, 0.618 되돌림]
-                    │
-                    └── <span style="color:var(--accent2)">Wave (3): $12.07 → 진행 중 [$34.16 현재]</span>
-                            │
-                            ├── sub-wave i:   $12.07 → $20.21 [+67%]
-                            ├── sub-wave ii:  $20.21 → $17.0  [-16%, 0.382]
-                            ├── sub-wave iii: $17.0  → $35.86 [+111%] ← 가장 긴 파동
-                            ├── sub-wave iv:  진행 중? ($32-34 횡보)
-                            └── sub-wave v:   예상 $38-42</pre>
-
-  <h3>피보나치 레벨</h3>
-  <div class="table-wrap">
-    <table>
-      <thead><tr><th>레벨</th><th>가격</th><th>의미</th></tr></thead>
-      <tbody>
-        <tr><td>0.236</td><td>$30.25</td><td>얕은 조정 지지</td></tr>
-        <tr class="hl-green"><td><strong>0.382</strong></td><td><strong>$26.77</strong></td><td><strong>이상적 매수 존</strong></td></tr>
-        <tr><td>0.500</td><td>$23.97</td><td>깊은 조정 지지</td></tr>
-        <tr><td>0.618</td><td>$21.16</td><td>극단 조정 지지</td></tr>
-      </tbody>
-    </table>
-  </div>
-
-  <p><strong>현재 위치</strong>: Wave (3)의 sub-wave iii 완성 또는 iv 초기. 가장 강력한 구간은 이미 지남. 파동과 펀더멘털 모두 <strong>"단기 과열, 조정 후 재진입 유리"</strong> 시사.</p>
-</div>
-
-<!-- 8. 선행지표 -->
-<div class="section" id="s8">
-  <div class="section-title">Section 8</div>
-  <h2>선행지표</h2>
-
-  <h3>재무 지표</h3>
-  <div class="table-wrap">
-    <table>
-      <thead><tr><th>지표</th><th>리드타임</th><th>현재 시사점</th></tr></thead>
-      <tbody>
-        <tr><td>GE LEAP 인도 대수</td><td>0-1분기</td><td>Q1'26 520대 (+63% YoY) <span class="badge badge-green">&#10003;</span></td></tr>
-        <tr><td>Airbus A320neo 인도 속도</td><td>1-2분기</td><td>월 50대 (75대 목표 대비 갭) <span class="badge badge-orange">→</span></td></tr>
-        <tr><td>GE Aerospace 수주잔고</td><td>2-4분기</td><td>$40B+ 역대 최대 <span class="badge badge-green">&#10003;</span></td></tr>
-        <tr><td>PKE 미출하 (missed shipments)</td><td>동행</td><td>$740K (수요 > 공급 = 좋은 신호) <span class="badge badge-green">&#10003;</span></td></tr>
-      </tbody>
-    </table>
-  </div>
-
-  <h3>산업 지표</h3>
-  <div class="table-wrap">
-    <table>
-      <thead><tr><th>지표</th><th>리드타임</th><th>현재 시사점</th></tr></thead>
-      <tbody>
-        <tr><td>항공기 수주잔고 (Airbus+Boeing)</td><td>2-5년</td><td>23,000대+ 역대 최대 <span class="badge badge-green">&#10003;</span></td></tr>
-        <tr><td>PAC-3 생산 계약 규모</td><td>1-3년</td><td>$9.8B 신규 계약 (2025.09) <span class="badge badge-green">&#10003;</span></td></tr>
-        <tr><td>미국 방위 예산</td><td>1-2년</td><td>FY2027 $1.5T 요청 <span class="badge badge-green">&#10003;</span></td></tr>
-        <tr><td>P&W GTF AOG 대수</td><td>즉시</td><td>GTF 문제 지속 → LEAP 수혜 <span class="badge badge-green">&#10003;</span></td></tr>
-      </tbody>
-    </table>
-  </div>
-
-  <h3>핵심 선행지표 요약</h3>
-  <div class="table-wrap">
-    <table>
-      <thead><tr><th>#</th><th>지표</th><th>방향</th><th>시사점</th></tr></thead>
-      <tbody>
-        <tr><td>1</td><td>GE LEAP 인도 + 수주잔고</td><td style="color:var(--green)">&#8593;&#8593; 강한 상승</td><td><span class="badge badge-green">긍정</span></td></tr>
-        <tr><td>2</td><td>PAC-3 계약/생산 확대</td><td style="color:var(--green)">&#8593;&#8593; 극강</td><td><span class="badge badge-green">긍정</span></td></tr>
-        <tr><td>3</td><td>A320neo 월간 인도</td><td>→ 목표 대비 부진</td><td><span class="badge badge-orange">중립</span> (장기 &#8593; 확실)</td></tr>
-        <tr><td>4</td><td>Fed 금리 방향</td><td style="color:var(--green)">&#8595; 인하</td><td><span class="badge badge-blue">밸류 지지</span></td></tr>
-        <tr><td>5</td><td>Boeing 생산 정상화</td><td>→ 진행 중</td><td><span class="badge badge-orange">관찰 필요</span></td></tr>
-      </tbody>
-    </table>
-  </div>
-  <p><strong>종합</strong>: 선행지표 5개 중 4개 긍정/중립 → 펀더멘털 방향성 확실히 우상향. 다만 주가에 상당 부분 선반영.</p>
-
-  <h3>모니터링 항목</h3>
-  <div class="table-wrap">
-    <table>
-      <thead><tr><th>#</th><th>지표</th><th>주기</th><th>경고 트리거</th></tr></thead>
-      <tbody>
-        <tr><td>1</td><td>GE Aerospace 매출</td><td>분기</td><td>$7M/분기 미만</td></tr>
-        <tr><td>2</td><td>Gross Margin</td><td>분기</td><td>30% 미만 (C2B 제외)</td></tr>
-        <tr><td>3</td><td>LEAP 인도 대수</td><td>분기 (GE 실적)</td><td>분기 450대 미만</td></tr>
-        <tr><td>4</td><td>A320neo 인도 속도</td><td>월간 (Airbus)</td><td>월 55대 미만</td></tr>
-        <tr><td>5</td><td>신공장 진행</td><td>분기</td><td>6개월+ 일정 지연</td></tr>
-      </tbody>
-    </table>
-  </div>
-</div>
-
-<!-- Disclaimer -->
-<div class="disclaimer">
-  <strong>Disclaimer</strong>: 본 분석은 공개 정보 기반의 투자 참고 자료이며, 투자 권유가 아닙니다. 모든 투자 결정은 본인의 판단과 책임 하에 이루어져야 합니다.
-</div>
-
-<div class="footer">
-  <p>Analysis generated via <strong>/factory</strong> &middot; 2026-05-14 &middot; 현재가 $34.16 | 시총 $681M | 판정 WAIT</p>
-</div>
-
-</div><!-- container -->
-
+        // Back to top
+        const backTop = document.getElementById('backTop');
+        window.addEventListener('scroll', () => {
+            backTop.classList.toggle('show', window.scrollY > 400);
+        });
+    </script>
 </body>
 </html>
