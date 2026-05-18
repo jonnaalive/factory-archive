@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OIS (Oil States International) — Factory</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            line-height: 1.8;
+            color: #e0e0e0;
+            background: #0a0a0a;
+        }
+        .nav {
+            padding: 16px 24px;
+            border-bottom: 1px solid #1a1a1a;
+        }
+        .nav a {
+            color: #888;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+        .nav a:hover { color: #fff; }
+        .container {
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 48px 24px 100px;
+        }
+        .meta-bar {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 32px;
+            flex-wrap: wrap;
+        }
+        .meta-chip {
+            font-size: 0.8rem;
+            padding: 4px 12px;
+            border-radius: 20px;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            color: #aaa;
+        }
+        h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            line-height: 1.3;
+            margin-bottom: 12px;
+            color: #fff;
+        }
+        h2 {
+            font-size: 1.35rem;
+            font-weight: 700;
+            margin-top: 56px;
+            margin-bottom: 20px;
+            color: #fff;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #333;
+        }
+        p {
+            margin-bottom: 18px;
+            font-size: 1.05rem;
+            color: #ccc;
+        }
+        strong { color: #fff; font-weight: 600; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 24px 0 32px;
+            font-size: 0.95rem;
+        }
+        th {
+            background: #1a1a1a;
+            color: #fff;
+            padding: 12px 16px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid #333;
+        }
+        td {
+            padding: 12px 16px;
+            border-bottom: 1px solid #222;
+            color: #bbb;
+        }
+        tr:hover td { background: #151515; }
+        .quote {
+            border-left: 3px solid #555;
+            padding: 16px 24px;
+            margin: 24px 0;
+            background: #111;
+            border-radius: 0 8px 8px 0;
+            font-style: italic;
+            color: #aaa;
+        }
+        .section-break {
+            text-align: center;
+            margin: 48px 0;
+            color: #333;
+            font-size: 1.5rem;
+            letter-spacing: 12px;
+        }
+        .sources {
+            margin-top: 56px;
+            padding-top: 24px;
+            border-top: 1px solid #222;
+            font-size: 0.9rem;
+            color: #666;
+        }
+        .sources h3 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #888;
+        }
+        .sources ul { list-style: none; padding: 0; }
+        .sources li {
+            margin-bottom: 6px;
+            padding-left: 16px;
+            position: relative;
+        }
+        .sources li::before {
+            content: "·";
+            position: absolute;
+            left: 0;
+            color: #555;
+        }
+        .disclaimer {
+            margin-top: 32px;
+            padding: 16px;
+            background: #111;
+            border: 1px solid #222;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            color: #666;
+        }
+        @media (max-width: 600px) {
+            .container { padding: 32px 18px 60px; }
+            h1 { font-size: 1.6rem; }
+            h2 { font-size: 1.2rem; }
+            table { font-size: 0.85rem; }
+            th, td { padding: 10px 12px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="nav">
+        <a href="index.html">&larr; Factory 홈</a>
+    </div>
+
+    <div class="container">
+        <div class="meta-bar">
+            <span class="meta-chip">OIS</span>
+            <span class="meta-chip">Energy Services</span>
+            <span class="meta-chip">Offshore</span>
+            <span class="meta-chip">2026.05.18</span>
+        </div>
+
+        <h1>Oil States International: 심해 바닥에서 조용히 독점하는 회사</h1>
+
+        <p>심해 유전 하면 뭐가 떠오르시나요. 대부분은 ExxonMobil이나 Petrobras 같은 거대 석유회사를 떠올립니다. 하지만 그 거대 기업들이 수심 5,000미터 바다에서 석유를 뽑아올리려면, 해저 파이프라인과 부유식 생산설비를 연결하는 아주 특수한 부품이 필요합니다.</p>
+
+        <p>그 부품을 만드는 회사가 전 세계에 사실상 하나뿐이라면 어떨까요.</p>
+
+        <p><strong>Oil States International</strong>(티커: OIS). 시총 5.4억 달러짜리 소형주인데, FlexJoint라는 심해 커넥터 시장의 <strong>80~85%</strong>를 독점하고 있습니다.</p>
+
+        <div class="section-break">···</div>
+
+        <h2>심해 유전개발, 왜 다시 주목받나</h2>
+
+        <p>육상 셰일 혁명 이후 한동안 잊혀졌던 해양 유전개발이 돌아오고 있습니다. 이유는 세 가지입니다.</p>
+
+        <p><strong>첫째</strong>, 에너지 안보입니다. 호르무즈 해협 긴장이 장기화되면서 비-중동 에너지 공급원의 가치가 급상승했습니다. 브라질, 가이아나, 서아프리카의 심해 프로젝트가 전략적 우선순위로 올라왔습니다.</p>
+
+        <p><strong>둘째</strong>, FPSO(부유식 원유생산저장하역설비) 발주 사이클이 회복 중입니다. 2024~2028년 발주량이 연간 8~10기로, 2015년 이후 최고 수준입니다.</p>
+
+        <p><strong>셋째</strong>, 기존 해양 시설의 노후화입니다. 20~30년 된 시설의 유지보수·교체 수요가 꾸준히 발생합니다.</p>
+
+        <p>해저 장비(Subsea Equipment) 시장은 2025년 $69B에서 2028년 $96B로 연 11.6% 성장이 전망됩니다.</p>
+
+        <div class="section-break">···</div>
+
+        <h2>FlexJoint: 한번 들어가면 30년간 대체 불가</h2>
+
+        <p>OIS의 핵심 제품은 <strong>FlexJoint 커넥터</strong>입니다. 심해 라이저(해저에서 생산설비까지 석유를 올려보내는 파이프)와 부유식 생산설비 사이를 연결하는 유연 베어링 시스템입니다.</p>
+
+        <p>수심 2,000~18,000피트에서 해류와 파도에 의한 각도 변화를 흡수하면서도, 고압·고온 유체의 누출을 방지해야 합니다. 극한 환경의 제품입니다.</p>
+
+        <table>
+            <tr><th>항목</th><th>OIS FlexJoint</th><th>경쟁 대안</th></tr>
+            <tr><td>각도 수용</td><td><strong>±20° (업계 최대)</strong></td><td>±5~10°</td></tr>
+            <tr><td>수명</td><td><strong>20~30년 (교체 불필요)</strong></td><td>5~10년</td></tr>
+            <tr><td>수심 대응</td><td><strong>18,000ft+ 검증</strong></td><td>제한적</td></tr>
+            <tr><td>교체 부품</td><td>OIS만 공급 가능</td><td>N/A</td></tr>
+            <tr><td>글로벌 설치 기반</td><td><strong>200+ 시스템</strong></td><td>극소수</td></tr>
+        </table>
+
+        <p>이 독점의 핵심은 <strong>전환비용</strong>입니다. FlexJoint를 교체하려면 수백만 달러의 재설계·재인증·해저 작업이 필요합니다. 한번 설치되면 20~30년간 OIS가 유일한 교체부품 공급자가 됩니다.</p>
+
+        <p>한국에 비유하자면, 아파트 승강기 설치 후 해당 브랜드 부품만 쓸 수 있는 구조와 비슷합니다. 다만 여기선 교체 비용이 수십억 원 단위고, 바꾸려면 바다 밑으로 내려가야 합니다. 사실상 안 바꿉니다.</p>
+
+        <div class="section-break">···</div>
+
+        <h2>숫자로 보는 현재 위치</h2>
+
+        <p>OIS의 해양장비(OMP) 세그먼트 수주잔고는 <strong>$4.3억</strong>. 2015년 이후 최고 수준입니다. 2025년 연간 book-to-bill은 1.3x로, 받는 주문이 파는 것보다 많습니다.</p>
+
+        <p>포트폴리오도 빠르게 변하고 있습니다. 저마진 미국 육상 사업을 정리하고, 해양/국제 매출 비중을 2022년 55%에서 2025년 77%로 끌어올렸습니다. 2026년에는 80%를 넘길 전망입니다.</p>
+
+        <table>
+            <tr><th>지표</th><th>수치</th><th>의미</th></tr>
+            <tr><td>OMP 백로그</td><td><strong>$430M</strong></td><td>2015년 이후 최고</td></tr>
+            <tr><td>FY2025 FCF</td><td><strong>$74M</strong></td><td>역대 최고, 시총의 14%</td></tr>
+            <tr><td>순부채</td><td><strong>마이너스 (순현금)</strong></td><td>현금 > 부채</td></tr>
+            <tr><td>Fwd EV/EBITDA</td><td><strong>6x</strong></td><td>피어 평균 7~8x 할인</td></tr>
+            <tr><td>군사 매출 비중</td><td>~10%</td><td>비사이클 매출 확대 중</td></tr>
+        </table>
+
+        <p>특히 2025년 FCF $74M은 현재 시총 $542M의 14%에 해당합니다. 순현금 상태에서 이 정도 현금 창출력이면, 밸류에이션 바닥은 단단합니다.</p>
+
+        <div class="section-break">···</div>
+
+        <h2>그럼에도 불구하고: 사이클 종목의 숙명</h2>
+
+        <p>OIS는 본질적으로 ���너지 사이클 종목입니다. 유가가 $55 이하로 내려가면 E&P 업체들은 해양 투자를 즉각 삭감합니다. 2014~2020년에 OIS 매출이 $1.1B에서 $573M으로 반토막 난 전례가 있습니다.</p>
+
+        <p>현재 WTI $61, Brent $64 수준으로, 마냥 안심할 수는 없습니다.</p>
+
+        <p>또 하나. 중국산 천공 제품에 대한 관세가 25%에서 <strong>98%로 급등</strong>하면서 Downhole Technologies 세그먼트가 사실상 붕괴했습니다. 2025년 Q4에 $112M 손상차손을 인식했습니다. 비-중국 공급원 확보까지는 시간이 필요합니다.</p>
+
+        <p>시총 $542M의 소형주라는 점도 감안해야 합니다. 기관 한두 곳의 매도만으로도 주가가 크게 흔들릴 수 있습니다.</p>
+
+        <div class="section-break">···</div>
+
+        <h2>시사점: 니치 독점은 사이클을 이긴다</h2>
+
+        <p>OIS가 흥미로운 건 사이클 종목이면서도 독점이라는 점입니다.</p>
+
+        <p>유가가 오르면 신규 FPSO 발주가 늘어서 좋고, 유가가 내려도 이미 설치된 200+ 시스템의 유지보수 매출은 유지됩니다. 군사 매출(OMP의 10%)은 유가와 무관하게 성장하고 있고, 5년 장기계약까지 확보했습니다.</p>
+
+        <p>경영진은 "호르무즈 해협 긴장이 에너지 안보와 공급 다변화의 중요성을 강화한다"고 말합니다. 비-중동 심해 투자가 가속화될수록, OIS의 FlexJoint 주문서는 두꺼워집니다.</p>
+
+        <p>Forward EV/EBITDA 6x. 순현금. FCF 수익률 14%. FlexJoint 독점. 딥워터 사이클 초기 확장기.</p>
+
+        <p><strong>사이클이 맞고, 독점이 있고, 가격이 싸면 — 그게 기회입니다.</strong></p>
+
+        <div class="sources">
+            <h3>Sources</h3>
+            <ul>
+                <li>Oil States International Q1 2026 Earnings Call (2026.05.05)</li>
+                <li>Oil States International Q4 2025 Earnings Call (2026.02.20)</li>
+                <li>Oil States International 2025 10-K Filing</li>
+                <li>Subsea Equipment Market Report (Fortune Business Insights)</li>
+                <li>IBA Offshore FPSO Order Tracker</li>
+            </ul>
+        </div>
+
+        <div class="disclaimer">
+            본 글은 공개 정보 기반의 투자 참고 자료이며, 투자 권유가 아닙니다.
+        </div>
+    </div>
+</body>
+</html>
