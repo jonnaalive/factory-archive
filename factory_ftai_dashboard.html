@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FTAI Aviation Dashboard — Factory</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0a0a0a; color: #e0e0e0; line-height: 1.6; }
+        .header { background: linear-gradient(135deg, #0f1923 0%, #0a0a0a 100%); border-bottom: 1px solid #1a2a3a; padding: 24px 32px; }
+        .header-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
+        .header-title { display: flex; align-items: center; gap: 16px; }
+        .header-title h1 { font-size: 1.5rem; font-weight: 700; color: #fff; }
+        .ticker-badge { background: #1a3a5a; color: #4db8ff; padding: 4px 12px; border-radius: 6px; font-size: 0.85rem; font-weight: 600; }
+        .verdict-badge { padding: 6px 16px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; }
+        .verdict-wait { background: #3a2a00; color: #ffb800; border: 1px solid #5a4000; }
+        .meta-row { display: flex; gap: 8px; flex-wrap: wrap; }
+        .meta-chip { font-size: 0.72rem; padding: 3px 10px; border-radius: 16px; background: #141414; border: 1px solid #222; color: #888; }
+        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; padding: 20px 32px; }
+        .kpi-card { background: #111; border: 1px solid #1a1a1a; border-radius: 12px; padding: 16px; transition: border-color 0.2s; }
+        .kpi-card:hover { border-color: #333; }
+        .kpi-label { font-size: 0.7rem; color: #666; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+        .kpi-value { font-size: 1.4rem; font-weight: 700; color: #fff; }
+        .kpi-sub { font-size: 0.72rem; color: #888; margin-top: 2px; }
+        .kpi-change { font-size: 0.75rem; margin-top: 4px; }
+        .kpi-up { color: #4caf50; }
+        .kpi-down { color: #f44336; }
+        .nav-tabs { display: flex; gap: 0; padding: 0 32px; border-bottom: 1px solid #1a1a1a; overflow-x: auto; }
+        .nav-tab { padding: 12px 20px; font-size: 0.82rem; color: #666; cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.2s; white-space: nowrap; }
+        .nav-tab:hover { color: #aaa; }
+        .nav-tab.active { color: #fff; border-bottom-color: #4db8ff; }
+        .tab-content { display: none; padding: 24px 32px; }
+        .tab-content.active { display: block; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+        .card { background: #111; border: 1px solid #1a1a1a; border-radius: 12px; padding: 20px; overflow: hidden; }
+        .card-title { font-size: 0.8rem; color: #666; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px; font-weight: 600; }
+        .chart-container { position: relative; width: 100%; height: 280px; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+        th { background: #0e0e0e; color: #888; padding: 10px 12px; text-align: left; font-weight: 600; border-bottom: 1px solid #222; white-space: nowrap; }
+        td { padding: 9px 12px; border-bottom: 1px solid #141414; color: #aaa; }
+        tr:hover td { background: #0f0f0f; color: #ddd; }
+        td.hl { color: #fff; font-weight: 600; }
+        .prose { font-size: 0.88rem; color: #bbb; line-height: 1.85; padding: 20px 24px; background: #0e0e0e; border-radius: 12px; border: 1px solid #1a1a1a; margin-bottom: 20px; }
+        .prose p { margin-bottom: 12px; }
+        .prose p:last-child { margin-bottom: 0; }
+        .prose strong { color: #fff; }
+        .prose ul, .prose ol { margin: 8px 0 12px 20px; }
+        .prose li { margin-bottom: 4px; font-size: 0.85rem; }
+        .prose .prose-title { font-size: 0.95rem; font-weight: 700; color: #fff; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #1a1a1a; }
+        .prose-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .prose-box { padding: 16px; background: #111; border-radius: 8px; border: 1px solid #1a1a1a; }
+        .prose-box .prose-box-title { font-size: 0.78rem; font-weight: 600; color: #4db8ff; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .prose-box p { font-size: 0.82rem; color: #999; margin-bottom: 6px; }
+        .moat-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+        .moat-label { width: 110px; font-size: 0.8rem; color: #888; }
+        .moat-track { flex: 1; height: 8px; background: #1a1a1a; border-radius: 4px; overflow: hidden; }
+        .moat-fill { height: 100%; border-radius: 4px; }
+        .moat-fill.strong { background: linear-gradient(90deg, #2196f3, #4db8ff); }
+        .moat-fill.medium { background: linear-gradient(90deg, #ff9800, #ffb800); }
+        .moat-fill.weak { background: linear-gradient(90deg, #f44336, #ff6659); }
+        .scenario-toggle { display: flex; gap: 8px; margin-bottom: 16px; }
+        .scenario-btn { padding: 6px 14px; border-radius: 20px; font-size: 0.75rem; cursor: pointer; border: 1px solid #333; background: #111; color: #888; transition: all 0.2s; }
+        .scenario-btn.active { background: #1a3a5a; color: #4db8ff; border-color: #2a5a8a; }
+        .scenario-btn:hover { border-color: #555; }
+        .timeline { position: relative; padding-left: 24px; }
+        .timeline::before { content: ''; position: absolute; left: 8px; top: 0; bottom: 0; width: 2px; background: #1a1a1a; }
+        .timeline-item { position: relative; margin-bottom: 16px; padding-left: 16px; }
+        .timeline-item::before { content: ''; position: absolute; left: -20px; top: 6px; width: 10px; height: 10px; border-radius: 50%; background: #333; border: 2px solid #555; }
+        .timeline-item.highlight::before { background: #4db8ff; border-color: #4db8ff; }
+        .timeline-date { font-size: 0.72rem; color: #555; }
+        .timeline-text { font-size: 0.85rem; color: #bbb; }
+        .buy-plan-card { background: linear-gradient(135deg, #0f1923 0%, #111 100%); border: 1px solid #1a2a3a; border-radius: 12px; padding: 24px; }
+        .buy-zone { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+        .buy-zone-dot { width: 12px; height: 12px; border-radius: 50%; }
+        .zone-1 { background: #4caf50; }
+        .zone-2 { background: #2196f3; }
+        .zone-3 { background: #9c27b0; }
+        .buy-zone-text { font-size: 0.85rem; color: #bbb; }
+        .buy-zone-price { font-size: 0.85rem; color: #fff; font-weight: 600; margin-left: auto; }
+        .risk-item { display: flex; gap: 12px; margin-bottom: 14px; padding: 12px; background: #0e0e0e; border-radius: 8px; }
+        .risk-icon { font-size: 1.2rem; min-width: 24px; }
+        .risk-title { font-size: 0.85rem; color: #ddd; font-weight: 600; }
+        .risk-desc { font-size: 0.78rem; color: #888; margin-top: 2px; }
+        .slider-container { margin: 16px 0; }
+        .slider-label { display: flex; justify-content: space-between; font-size: 0.78rem; color: #888; margin-bottom: 6px; }
+        input[type="range"] { width: 100%; height: 6px; -webkit-appearance: none; appearance: none; background: #1a1a1a; border-radius: 3px; outline: none; }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; background: #4db8ff; border-radius: 50%; cursor: pointer; }
+        .calc-result { text-align: center; padding: 16px; background: #0a1a2a; border-radius: 8px; margin-top: 16px; }
+        .calc-result-value { font-size: 1.8rem; font-weight: 700; color: #4db8ff; }
+        .calc-result-label { font-size: 0.75rem; color: #666; margin-top: 4px; }
+        .progress-bar { height: 20px; background: #1a1a1a; border-radius: 10px; overflow: hidden; position: relative; margin-bottom: 12px; }
+        .progress-fill { height: 100%; border-radius: 10px; }
+        .progress-label { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); font-size: 0.72rem; color: #fff; font-weight: 600; }
+        @media (max-width: 900px) { .grid-2, .grid-3, .prose-grid { grid-template-columns: 1fr; } .kpi-grid { grid-template-columns: repeat(2, 1fr); } .header, .nav-tabs, .tab-content { padding-left: 16px; padding-right: 16px; } }
+        @media (max-width: 600px) { .kpi-grid { grid-template-columns: 1fr; } .header-top { flex-direction: column; align-items: flex-start; } }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <div class="header-top">
+        <div class="header-title">
+            <span class="ticker-badge">NASDAQ: FTAI</span>
+            <h1>FTAI Aviation</h1>
+        </div>
+        <span class="verdict-badge verdict-wait">WAIT → V-(ii) $235-250 대기</span>
+    </div>
+    <div class="meta-row">
+        <span class="meta-chip">Aerospace</span>
+        <span class="meta-chip">MRO</span>
+        <span class="meta-chip">CFM56</span>
+        <span class="meta-chip">Data Center Power</span>
+        <span class="meta-chip">Aviation Leasing</span>
+        <span class="meta-chip">분석일 2026-05-14</span>
+    </div>
+</div>
+
+<div class="kpi-grid">
+    <div class="kpi-card"><div class="kpi-label">현재가</div><div class="kpi-value">$267</div><div class="kpi-change kpi-up">52주: $74 ~ $323</div></div>
+    <div class="kpi-card"><div class="kpi-label">시총 / EV</div><div class="kpi-value">$29.3B</div><div class="kpi-sub">EV $30.0B</div></div>
+    <div class="kpi-card"><div class="kpi-label">FY26E EBITDA</div><div class="kpi-value">$1.625B</div><div class="kpi-change kpi-up">가이던스 재확인</div></div>
+    <div class="kpi-card"><div class="kpi-label">EV/EBITDA</div><div class="kpi-value">18.5x</div><div class="kpi-sub">Fair Value 18x 근접</div></div>
+    <div class="kpi-card"><div class="kpi-label">PEG</div><div class="kpi-value">0.41</div><div class="kpi-change kpi-up">매력적 (EPS +56%)</div></div>
+    <div class="kpi-card"><div class="kpi-label">확률가중 TP</div><div class="kpi-value">$276</div><div class="kpi-change kpi-up">+3.3% upside</div></div>
+    <div class="kpi-card"><div class="kpi-label">Q1 모듈</div><div class="kpi-value">270개</div><div class="kpi-change kpi-up">+96% YoY | 연간 1,050 궤도</div></div>
+    <div class="kpi-card"><div class="kpi-label">컨센서스 TP</div><div class="kpi-value">$341</div><div class="kpi-sub">$293~$400 | 전원 Buy</div></div>
+</div>
+
+<div class="nav-tabs">
+    <div class="nav-tab active" data-tab="overview">Overview</div>
+    <div class="nav-tab" data-tab="financials">재무제표</div>
+    <div class="nav-tab" data-tab="segments">사업 분석</div>
+    <div class="nav-tab" data-tab="valuation">밸류에이션</div>
+    <div class="nav-tab" data-tab="competition">경쟁 & Power</div>
+    <div class="nav-tab" data-tab="buyplan">매수 플랜</div>
+</div>
+
+<!-- OVERVIEW -->
+<div class="tab-content active" id="tab-overview">
+    <div class="prose">
+        <div class="prose-title">AI 시대 항공엔진 애프터마켓의 숨은 지배자 + 데이터센터 전력 옵셔널리티</div>
+        <p><strong>FTAI Aviation</strong>은 세계 최다 생산 항공엔진인 <strong>CFM56</strong>(GE-Safran 합작, 33,000+기 생산)의 모듈 단위 정비·교환·재제조에 특화된 항공엔진 애프터마켓 MRO 기업이다. 핵심은 <strong>MRE(Module Rapid Exchange)</strong> — 기존 full overhaul($5-7M, 60-120일)을 $2-4M, 수일로 대체하는 혁신 모델이다.</p>
+        <p>전 세계 25,200+대의 narrowbody 기체가 CFM56/V2500 엔진을 탑재하고 있으며, 737 MAX / A320neo 납기 지연으로 기체 수명이 25년→30년으로 강제 연장되고 있다. 2024-2028년은 CFM56 Shop Visit 피크 사이클이며, FTAI는 현재 시장점유율 12%에서 <strong>25%</strong>까지 확대를 목표로 한다(TAM ~$25B/년).</p>
+        <p>2026년 Q4부터는 퇴역 CFM56 코어를 25MW 산업용 가스터빈으로 전환하는 <strong>FTAI Power</strong> 사업을 상용 론칭한다. 데이터센터 전력 위기(50GW→76GW) 속에서 GE Vernova 납기 3-5년 백로그를 활용한 공급 갭 전략이다. 연간 100+유닛(2.5GW) 목표, 대당 EBITDA $700-800만.</p>
+    </div>
+    <div class="prose" style="border-left: 3px solid #4db8ff;">
+        <div class="prose-title">구조적 성장 동인 — "왜 지금?"</div>
+        <div class="prose-grid">
+            <div class="prose-box"><div class="prose-box-title">신형 엔진 공급 부족</div><p>737 MAX / A320neo 납기 지연 → 기존 기체 수명 25→30년 연장. CFM56 정비 수요 구조적 장기화.</p></div>
+            <div class="prose-box"><div class="prose-box-title">CFM56 Shop Visit Peak</div><p>2024-2028년 정비 수요 최대치. MRE가 30-40% 비용 절감 + 수일 턴어라운드 제공.</p></div>
+            <div class="prose-box"><div class="prose-box-title">FTAI Power 콜옵션</div><p>퇴역 CFM56 → 25MW 가스터빈. AI 데이터센터 전력 수요 대응. 현재 가격 미반영.</p></div>
+            <div class="prose-box"><div class="prose-box-title">SCI Asset-Light 전환</div><p>제3자 자본 $6B+로 중고 항공기 매입. FTAI는 수수료+MRE 독점 공급만 담당.</p></div>
+        </div>
+    </div>
+    <div class="grid-2">
+        <div class="card">
+            <div class="card-title">Revenue & EBITDA 추이</div>
+            <div class="chart-container"><canvas id="chartRevEbitda"></canvas></div>
+        </div>
+        <div class="card">
+            <div class="card-title">마진 추이</div>
+            <div class="chart-container"><canvas id="chartMargins"></canvas></div>
+        </div>
+    </div>
+    <div class="grid-2">
+        <div class="card">
+            <div class="card-title">해자(Moat) 평가</div>
+            <div style="padding: 8px 0;">
+                <div class="moat-bar"><span class="moat-label">Module Factory 규모</span><div class="moat-track"><div class="moat-fill strong" style="width:90%"></div></div></div>
+                <div class="moat-bar"><span class="moat-label">학습곡선/원가</span><div class="moat-track"><div class="moat-fill strong" style="width:85%"></div></div></div>
+                <div class="moat-bar"><span class="moat-label">엔진 재고(22K+)</span><div class="moat-track"><div class="moat-fill strong" style="width:80%"></div></div></div>
+                <div class="moat-bar"><span class="moat-label">전환비용</span><div class="moat-track"><div class="moat-fill medium" style="width:60%"></div></div></div>
+                <div class="moat-bar"><span class="moat-label">OEM 인증 장벽</span><div class="moat-track"><div class="moat-fill medium" style="width:55%"></div></div></div>
+            </div>
+            <p style="font-size:0.78rem;color:#888;margin-top:12px;">핵심 해자: 4개 시설 + 270 모듈/분기 생산 능력은 후발 진입이 극히 어려운 독점 플랫폼.</p>
+        </div>
+        <div class="card">
+            <div class="card-title">주요 이벤트 타임라인</div>
+            <div class="timeline">
+                <div class="timeline-item"><div class="timeline-date">2022.08</div><div class="timeline-text">FIP 스핀오프 → 순수 항공 집중</div></div>
+                <div class="timeline-item"><div class="timeline-date">2023</div><div class="timeline-text">Module Factory 본격 가동 (Montreal)</div></div>
+                <div class="timeline-item"><div class="timeline-date">2025.01</div><div class="timeline-text">Muddy Waters 공매도 → "근거 없음" 결론</div></div>
+                <div class="timeline-item highlight"><div class="timeline-date">2026.01</div><div class="timeline-text">FTAI Power 론칭 + Jereh JV 서명</div></div>
+                <div class="timeline-item highlight"><div class="timeline-date">2026.04</div><div class="timeline-text">Q1: 매출 $831M (+65%), 모듈 270개 (+96%)</div></div>
+                <div class="timeline-item highlight"><div class="timeline-date">2026.Q4</div><div class="timeline-text">Power 상용 론칭 예정</div></div>
+            </div>
+        </div>
+    </div>
+    <div class="prose">
+        <div class="prose-title">경영진</div>
+        <p><strong>Joseph P. Adams Jr. (67, CEO)</strong> — Fortress PE 출신. 9.11 후 항공산업 구조조정 주도. "유가가 오르든 내리든 FTAI는 이긴다"는 전천후 포지셔닝 철학.</p>
+        <p><strong>David Moreno (35, President)</strong> — Aerospace Products 급성장 견인. 바클레이 컨퍼런스에서 "2027 물량 imminently sold out" 발언으로 주가 +14.6%.</p>
+        <p><strong>Stacy Kuperus (39, COO)</strong> — Module Factory 글로벌 확장(Montreal→Miami→Rome→4호) 주도. 연간 1,050개 목표의 실행 책임자.</p>
+    </div>
+</div>
+
+<!-- FINANCIALS -->
+<div class="tab-content" id="tab-financials">
+    <div class="prose">
+        <div class="prose-title">재무 핵심 인사이트</div>
+        <p><strong>FY2025 EBIT +206%</strong>는 Aerospace Products 본격 수익화의 결과다. 모듈 생산량이 임계치를 넘으면서 규모의 경제가 작동하기 시작했다. 반면 <strong>FY2024 NI 급락(-96%)</strong>은 비정상 세율 38.7%와 구조조정 비용 때문으로, 일회성이다(FY2025 반등 확인).</p>
+        <p><strong>OCF가 지속 마이너스</strong>인 이유는 재고 투입 때문이다. Inventory가 FY24 $551M→FY25 $1,194M (+117%)로 급증했는데, 이는 모듈 생산 확대를 위한 의도적 선투자다. 재고가 매출로 전환되면 OCF는 양전환한다(Q1 2026 Adj FCF $158M 확인).</p>
+        <p><strong>Q1 2026 GPM 30.6%</strong>로 하락한 것은 대형 항공사 고객 확대(낮은 마진, 높은 볼륨) + 4호 시설 ramp-up 비용 때문이다. Adams CEO는 "의도적 선택, 절대 EBITDA 성장이 마진율보다 중요"라고 설명했다.</p>
+    </div>
+    <div class="grid-2">
+        <div class="card">
+            <div class="card-title">손익계산서 (연간, $M)</div>
+            <table>
+                <tr><th>항목</th><th>2022</th><th>2023</th><th>2024</th><th>2025</th></tr>
+                <tr><td>Revenue</td><td>708</td><td>1,171</td><td>1,735</td><td class="hl">2,507</td></tr>
+                <tr><td>EBITDA</td><td>294</td><td>559</td><td>498</td><td class="hl">1,122</td></tr>
+                <tr><td>Operating Income</td><td>157</td><td>357</td><td>252</td><td class="hl">770</td></tr>
+                <tr><td>Net Income</td><td>-193</td><td>244</td><td>9</td><td>501</td></tr>
+                <tr><td>GPM</td><td>43.4%</td><td>42.6%</td><td>39.8%</td><td>37.2%</td></tr>
+                <tr><td>OPM</td><td>22.2%</td><td>30.5%</td><td>14.5%</td><td class="hl">30.7%</td></tr>
+            </table>
+        </div>
+        <div class="card">
+            <div class="card-title">대차대조표 ($M)</div>
+            <table>
+                <tr><th>항목</th><th>2023</th><th>2024</th><th>2025</th><th>Q1'26</th></tr>
+                <tr><td>Total Debt</td><td>2,517</td><td>3,440</td><td>3,449</td><td>3,451</td></tr>
+                <tr><td>Net Debt</td><td>2,427</td><td>3,325</td><td>3,148</td><td>3,039</td></tr>
+                <tr><td>Inventory</td><td>317</td><td>551</td><td class="hl">1,194</td><td class="hl">1,364</td></tr>
+                <tr><td>Net Debt/EBITDA</td><td>4.3x</td><td>6.7x</td><td>2.8x</td><td class="hl">1.9x*</td></tr>
+            </table>
+            <p style="font-size:0.7rem;color:#555;margin-top:6px;">*2026E EBITDA $1.625B 기준</p>
+        </div>
+    </div>
+    <div class="grid-2">
+        <div class="card">
+            <div class="card-title">분기별 매출 & EBITDA</div>
+            <div class="chart-container"><canvas id="chartQuarterly"></canvas></div>
+        </div>
+        <div class="card">
+            <div class="card-title">모듈 생산량 추이</div>
+            <div class="chart-container"><canvas id="chartModules"></canvas></div>
+        </div>
+    </div>
+</div>
+
+<!-- SEGMENTS -->
+<div class="tab-content" id="tab-segments">
+    <div class="prose">
+        <div class="prose-title">BM 3축: Aerospace Products + Aviation Leasing + FTAI Power</div>
+        <p><strong>1) Aerospace Products (2026E EBITDA $1.05B, ~65%)</strong> — CFM56/V2500 엔진을 모듈 단위로 분해→정비→재제조하는 "Module Factory". 핵심은 MRE(Module Rapid Exchange): 기존 full overhaul이 $5-7M, 60-120일 걸리는 것을 <strong>$2-4M, 수일</strong>로 대체한다. 비용 초과 리스크도 없다(고정 가격). 시설 4곳(Montreal/Miami/Rome/4호), 연간 1,050개 모듈 목표.</p>
+        <p><strong>2) Aviation Leasing (2026E EBITDA $575M, ~35%)</strong> — 290개 항공 자산(47대 기체 + 243기 엔진). 핵심은 <strong>SCI(Structured Capital Initiative)</strong>: 제3자 기관자본($2.0B equity, $2.5B 부채)으로 중고 737NG/A320ceo를 매입하고, FTAI는 Servicer + MRE 독점 공급만 담당. Asset-Light 전환의 핵심 메커니즘이다. SCI 2차 펀드 $60억 추가 조성 중.</p>
+        <p><strong>3) FTAI Power (신규, 2026 Q4 론칭)</strong> — 퇴역 CFM56 코어를 25MW 산업용 가스터빈으로 전환. 타겟은 AI 데이터센터·하이퍼스케일러. Jereh Group JV로 패키징/조립 담당(US/UAE/Canada/China 거점). 핵심 차별화: <strong>2일 내 현장 터빈 교체</strong> 가능한 모듈 설계. 원재료는 22,000+기 기존 엔진으로, 신규 제조 대비 공급 확실성이 압도적이다.</p>
+    </div>
+    <div class="grid-2">
+        <div class="card">
+            <div class="card-title">EBITDA 믹스 (2026E)</div>
+            <div class="chart-container"><canvas id="chartMix"></canvas></div>
+        </div>
+        <div class="card">
+            <div class="card-title">MRE vs Full Overhaul 비교</div>
+            <table>
+                <tr><th></th><th>Full Overhaul</th><th>FTAI MRE</th></tr>
+                <tr><td>비용</td><td>$5~7M</td><td class="hl">$2~4M (-40%)</td></tr>
+                <tr><td>기간</td><td>60~120일</td><td class="hl">수일</td></tr>
+                <tr><td>다운타임</td><td>2~4개월</td><td class="hl">거의 없음</td></tr>
+                <tr><td>비용 초과</td><td>높음</td><td class="hl">없음 (고정가격)</td></tr>
+            </table>
+            <div style="margin-top:16px;">
+                <div style="font-size:0.78rem;color:#888;margin-bottom:6px;">시장점유율 목표</div>
+                <div class="progress-bar"><div class="progress-fill" style="width:48%;background:linear-gradient(90deg,#2196f3,#4db8ff);"></div><div class="progress-label">12% → 25% 목표</div></div>
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-title">Module Factory 현황</div>
+        <div class="grid-3" style="margin-top:12px;">
+            <div style="text-align:center;padding:16px;background:#0e0e0e;border-radius:8px;">
+                <div style="font-size:1.3rem;font-weight:700;color:#fff;">4개</div>
+                <div style="font-size:0.72rem;color:#888;margin-top:4px;">글로벌 시설</div>
+            </div>
+            <div style="text-align:center;padding:16px;background:#0e0e0e;border-radius:8px;">
+                <div style="font-size:1.3rem;font-weight:700;color:#4caf50;">270/분기</div>
+                <div style="font-size:0.72rem;color:#888;margin-top:4px;">Q1'26 모듈 (+96% YoY)</div>
+            </div>
+            <div style="text-align:center;padding:16px;background:#0e0e0e;border-radius:8px;">
+                <div style="font-size:1.3rem;font-weight:700;color:#4db8ff;">1,050/년</div>
+                <div style="font-size:0.72rem;color:#888;margin-top:4px;">2026 연간 목표</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- VALUATION -->
+<div class="tab-content" id="tab-valuation">
+    <div class="prose">
+        <div class="prose-title">밸류에이션 접근법</div>
+        <p>FTAI에 적합한 지표는 <strong>Adj EBITDA + Non-GAAP EPS</strong>다. GAAP P/E는 일회성 항목(러시아 손상, 세율 변동, Muddy Waters 법률비용)으로 왜곡된다(FY2024 GAAP NI $9M vs Adj EBITDA $862M). IPO 이후 EV/EBITDA 밴드는 최저 6.8x(스핀오프 직후)에서 최고 22.3x(Power 유포리아)까지 형성되었으며, 정상 밴드는 13-14x다.</p>
+        <p>현재 18.5x는 <strong>Fair Value(18x) 근접</strong> 수준이다. Aerospace Products 비중이 50%→65%로 상승하며 "리싱 회사"에서 "정비 플랫폼 기업"으로 리레이팅이 진행 중이고, 2027+ FTAI Power 실적 가시화 시 에너지 인프라 프리미엄(22-25x)이 추가될 수 있다.</p>
+    </div>
+    <div class="grid-2">
+        <div class="card">
+            <div class="card-title">EV/EBITDA 계산기</div>
+            <div class="slider-container">
+                <div class="slider-label"><span>EBITDA ($M)</span><span id="ebitdaVal">1625</span></div>
+                <input type="range" id="ebitdaSlider" min="1200" max="2200" value="1625" step="25">
+            </div>
+            <div class="slider-container">
+                <div class="slider-label"><span>EV/EBITDA</span><span id="multipleVal">18.5x</span></div>
+                <input type="range" id="multipleSlider" min="10" max="25" value="18.5" step="0.5">
+            </div>
+            <div class="slider-container">
+                <div class="slider-label"><span>Net Debt ($B)</span><span id="debtVal">3.04</span></div>
+                <input type="range" id="debtSlider" min="2.0" max="4.0" value="3.04" step="0.05">
+            </div>
+            <div class="calc-result">
+                <div class="calc-result-label">IMPLIED 주가</div>
+                <div class="calc-result-value" id="calcPrice">$267</div>
+                <div style="font-size:0.75rem;color:#888;margin-top:4px;" id="calcUpside">현주가 대비 ±0%</div>
+            </div>
+            <div style="font-size:0.7rem;color:#555;margin-top:8px;text-align:center;">희석주식수 103M 기준</div>
+        </div>
+        <div class="card">
+            <div class="card-title">EV/EBITDA 밴드 추이</div>
+            <div class="chart-container"><canvas id="chartBand"></canvas></div>
+        </div>
+    </div>
+    <div class="card" style="margin-bottom:20px;">
+        <div class="card-title">12셀 가격 매트릭스 (FY27E)</div>
+        <div class="scenario-toggle">
+            <span class="scenario-btn" data-scenario="bear">Bear</span>
+            <span class="scenario-btn active" data-scenario="base">Base</span>
+            <span class="scenario-btn" data-scenario="bull">Bull</span>
+        </div>
+        <table id="matrixTable">
+            <tr><th>EPS \ PE</th><th>15x (압축)</th><th>22x (현행)</th><th>30x (확장)</th></tr>
+            <tr><td id="m-label">$11.0 (Base)</td><td id="m-15">$165 (-38%)</td><td id="m-22" class="hl">$242 (-9%)</td><td id="m-30" style="color:#4caf50">$330 (+24%)</td></tr>
+        </table>
+        <div style="margin-top:12px;padding:12px;background:#0a1a2a;border-radius:8px;text-align:center;">
+            <span style="font-size:0.78rem;color:#888;">확률가중 1년 목표가: </span>
+            <span style="font-size:1.2rem;font-weight:700;color:#4db8ff;">$276</span>
+            <span style="font-size:0.78rem;color:#888;"> (+3.3%)</span>
+        </div>
+    </div>
+    <div class="grid-2">
+        <div class="card">
+            <div class="card-title">증권사 TP 분포</div>
+            <div class="chart-container"><canvas id="chartAnalysts"></canvas></div>
+        </div>
+        <div class="card">
+            <div class="card-title">EV/EBITDA 역산 매수가</div>
+            <table>
+                <tr><th>배수</th><th>주가</th><th>현재 대비</th><th>의미</th></tr>
+                <tr><td>22x</td><td>$319</td><td>+19%</td><td>유포리아</td></tr>
+                <tr><td>20x</td><td>$287</td><td>+7%</td><td></td></tr>
+                <tr><td class="hl">18x</td><td class="hl">$255</td><td class="hl">-5%</td><td class="hl">적정가</td></tr>
+                <tr><td>16x</td><td>$223</td><td>-16%</td><td>매력적</td></tr>
+                <tr><td>15x</td><td>$208</td><td>-22%</td><td>적극 진입</td></tr>
+                <tr><td style="color:#4caf50">14x</td><td style="color:#4caf50">$192</td><td style="color:#4caf50">-28%</td><td style="color:#4caf50">Best entry</td></tr>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- COMPETITION & POWER -->
+<div class="tab-content" id="tab-competition">
+    <div class="prose">
+        <div class="prose-title">Peer 비교 — FTAI는 어디에 속하는가?</div>
+        <p>FTAI는 전통적 분류로는 "항공 리싱"이지만, 실질은 <strong>항공엔진 애프터마켓 정비 플랫폼</strong>이다. TransDigm(TDG)·HEICO(HEI)와 같은 "항공 부품 독점" 그룹에 가까워지고 있으며, Aerospace Products 비중 65%+ 달성 시 리레이팅이 완성된다. 현재 EV/EBITDA 19.9x는 TDG(21.1x) 대비 할인, HEICO(40.3x) 대비 크게 할인이다.</p>
+    </div>
+    <div class="card" style="margin-bottom:20px;">
+        <div class="card-title">Peer 밸류에이션 비교</div>
+        <table>
+            <tr><th>기업</th><th>시총</th><th>Fwd PE</th><th>EV/EBITDA</th><th>매출성장</th><th>OPM</th></tr>
+            <tr style="background:#0a1a2a;"><td class="hl">FTAI</td><td class="hl">$29.3B</td><td class="hl">24.7x</td><td class="hl">19.9x</td><td style="color:#4caf50">+65.5%</td><td>30.7%</td></tr>
+            <tr><td>AerCap (AER)</td><td>$26.2B</td><td>8.9x</td><td>9.5x</td><td>~5%</td><td>~55%</td></tr>
+            <tr><td>TransDigm (TDG)</td><td>$68.2B</td><td>29.3x</td><td>21.1x</td><td>~15%</td><td>~48%</td></tr>
+            <tr><td>HEICO (HEI)</td><td>$40.3B</td><td>~45x</td><td>40.3x</td><td>~8%</td><td>~22%</td></tr>
+            <tr><td>AAR Corp (AIR)</td><td>$4.5B</td><td>~25x</td><td>~20x</td><td>~20%</td><td>~6%</td></tr>
+        </table>
+    </div>
+    <div class="prose" style="border-left: 3px solid #9c27b0;">
+        <div class="prose-title">FTAI Power — 공짜 콜옵션</div>
+        <p>미국 데이터센터 전력 수요가 50GW(2024)→76GW(2026)로 폭발하는 가운데, GE Vernova 에어로더리버티브 터빈 납기는 3-5년이다. FTAI Power는 이미 존재하는 22,000+기 퇴역 CFM56 엔진을 원재료로 활용하여 <strong>2026 Q4부터 25MW 가스터빈을 공급</strong>한다.</p>
+        <p>핵심 차별화 3가지: ①<strong>Speed</strong> — GE 3-5년 vs FTAI 즉시 ②<strong>Scale</strong> — 연간 100+유닛(2.5GW) ③<strong>정비</strong> — 2일 내 현장 터빈 교체(MRE 모듈 설계 그대로 적용). 2027 물량은 "imminently sold out" 상태다.</p>
+        <p>Base 시나리오(연 100유닛) 기준 EBITDA $300M, EV/EBITDA 15x 적용 시 <strong>추가 가치 $4.5B(+$44/주)</strong>. 현재 주가에 거의 미반영.</p>
+    </div>
+    <div class="card">
+        <div class="card-title">에어로더리버티브 터빈 경쟁 비교</div>
+        <table>
+            <tr><th></th><th style="color:#4db8ff">FTAI Power</th><th>GE Vernova</th><th>ProEnergy</th><th>Boom Superpower</th></tr>
+            <tr><td>출력</td><td class="hl">25MW</td><td>40-58MW</td><td>~50MW</td><td>42MW</td></tr>
+            <tr><td>납기</td><td style="color:#4caf50">2026 Q4~</td><td>3-5년</td><td>6-18개월</td><td>2026 중반</td></tr>
+            <tr><td>정비</td><td style="color:#4caf50">2일 모듈 교환</td><td>수주~수개월</td><td>전통</td><td>미검증</td></tr>
+            <tr><td>연간 공급</td><td>100+ (2.5GW)</td><td>~3-5GW</td><td>소규모</td><td>4GW(2030)</td></tr>
+            <tr><td>원재료</td><td style="color:#4caf50">22,000+기 기존</td><td>신규 제조</td><td>중고(제한)</td><td>신규 제조</td></tr>
+        </table>
+    </div>
+</div>
+
+<!-- BUY PLAN -->
+<div class="tab-content" id="tab-buyplan">
+    <div class="prose">
+        <div class="prose-title">매수 판단 종합 — WAIT, 조정 대기</div>
+        <p>현주가 $267은 Fwd EV/EBITDA 18.5x로 Fair Value(18x) 수준이다. 확률가중 1년 목표 $276 대비 업사이드 +3.3%에 불과하며, $285 진입 시 R:R은 0.4:1로 불리하다. <strong>추격 매수 비추.</strong></p>
+        <p><strong>$323→$203 급락(-37%)</strong>의 배경: 이란 전쟁(호르무즈 봉쇄, Brent $197)이 70%, Q1 EPS miss가 30%. 현재 $267까지 반등했으나, 엘리어트 Wave V 구조에서 (ii) 되돌림($235-250)이 예상된다. 이 구간이 R:R 1.2:1의 적정 진입점이다.</p>
+        <p><strong>이란 전쟁 순효과는 중기 긍정적:</strong> 단기 정비 이연은 있지만, 기체 퇴역 불가(대체기 없음) + 평균 기체 연령 사상 최고 + MRE 가격경쟁력 강화로 상쇄. Adams CEO: "유가 상승 시 MRE 전환 가속, 하락 시 정비 물량↑ + Power 투입비용↓".</p>
+    </div>
+    <div class="grid-2">
+        <div class="card">
+            <div class="card-title">주가 흐름 & 파동 분석</div>
+            <div class="chart-container"><canvas id="chartWave"></canvas></div>
+        </div>
+        <div class="buy-plan-card">
+            <div class="card-title" style="color:#888;">분할 매수 플랜</div>
+            <div style="margin-bottom:16px;">
+                <div style="font-size:0.85rem;color:#fff;font-weight:600;">V-(ii) 되돌림 $235-250 대기</div>
+                <div style="font-size:0.78rem;color:#888;">확률가중 TP $276 | 손절 $155</div>
+            </div>
+            <div class="buy-zone"><span class="buy-zone-dot zone-1"></span><span class="buy-zone-text">V-(ii) 표준 진입</span><span class="buy-zone-price">$235-250 (R:R 1.2:1)</span></div>
+            <div class="buy-zone"><span class="buy-zone-dot zone-2"></span><span class="buy-zone-text">깊은 조정</span><span class="buy-zone-price">$215-235 (R:R 1.5:1+)</span></div>
+            <div class="buy-zone"><span class="buy-zone-dot zone-3"></span><span class="buy-zone-text">Wave IV 재확인</span><span class="buy-zone-price">$195-215 (R:R 2.0:1+)</span></div>
+            <div style="margin-top:16px;padding:12px;background:#1a0a0a;border:1px solid #3a1a1a;border-radius:8px;">
+                <div style="font-size:0.78rem;color:#f44336;font-weight:600;">손절: $155 이하 (엘리어트 무효화)</div>
+            </div>
+            <div style="margin-top:12px;padding:12px;background:#0a1a0a;border:1px solid #1a3a1a;border-radius:8px;">
+                <div style="font-size:0.78rem;color:#4caf50;font-weight:600;">BUY 전환 트리거:</div>
+                <div style="font-size:0.72rem;color:#888;margin-top:4px;">$200 이하 재진입 | 이란 휴전 | Q2 가이던스 유지 | Power 첫 수주</div>
+            </div>
+        </div>
+    </div>
+    <div class="grid-2">
+        <div class="card">
+            <div class="card-title">리스크 포인트</div>
+            <div class="risk-item"><span class="risk-icon">📊</span><div><div class="risk-title">밸류에이션 — Fair Value 근접</div><div class="risk-desc">Trailing PE 53.5x, EV/EBITDA 18.5x. 52주 고점 $323 대비 -17%. 추가 업사이드 제한적.</div></div></div>
+            <div class="risk-item"><span class="risk-icon">⛽</span><div><div class="risk-title">이란 전쟁 / 유가 리스크</div><div class="risk-desc">Brent $197, 제트유 사상 최고. 항공사 재정 악화 → 단기 정비 이연 가능. 다만 중기 긍정적.</div></div></div>
+            <div class="risk-item"><span class="risk-icon">💰</span><div><div class="risk-title">레버리지 & OCF</div><div class="risk-desc">Total Debt $3.45B (D/E 810%). OCF 마이너스 지속 (재고 투자). 재고 안정화 전까지 위험.</div></div></div>
+            <div class="risk-item"><span class="risk-icon">⚡</span><div><div class="risk-title">FTAI Power 실행 리스크</div><div class="risk-desc">Q4 론칭 예정이나 미검증. 지연 시 리레이팅 스토리 약화.</div></div></div>
+        </div>
+        <div class="card">
+            <div class="card-title">킬 크라이테리아 & 모니터링</div>
+            <table>
+                <tr><th>지표</th><th>트리거</th></tr>
+                <tr><td>모듈 생산</td><td style="color:#f44336">2분기 연속 QoQ 감소</td></tr>
+                <tr><td>FTAI Power</td><td style="color:#f44336">1년+ 지연 발표</td></tr>
+                <tr><td>Net Debt/EBITDA</td><td style="color:#f44336">3.5x 초과</td></tr>
+                <tr><td>CEO</td><td style="color:#f44336">Joe Adams 퇴임</td></tr>
+                <tr><td>주가</td><td style="color:#f44336">$155 하회</td></tr>
+            </table>
+            <div style="margin-top:12px;font-size:0.78rem;color:#888;">
+                <strong style="color:#fff;">모니터링 캘린더:</strong><br>
+                2026.07 Q2 실적 (모듈 궤도? GPM 회복?)<br>
+                2026.10 Q3 실적 (Power 최종 테스트)<br>
+                2026.Q4 <strong style="color:#4db8ff;">Power 상용 론칭</strong><br>
+                2027.H1 Power 별도 세그먼트 보고
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.querySelectorAll('.nav-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+        document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+    });
+});
+
+// Scenario toggle for matrix
+const matrixData = {
+    bear: { label:'$8.0 (Bear)', p15:'$120 (-55%)', p22:'$176 (-34%)', p30:'$240 (-10%)' },
+    base: { label:'$11.0 (Base)', p15:'$165 (-38%)', p22:'$242 (-9%)', p30:'$330 (+24%)' },
+    bull: { label:'$14.5 (Bull)', p15:'$218 (-18%)', p22:'$319 (+19%)', p30:'$435 (+63%)' }
+};
+document.querySelectorAll('.scenario-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.scenario-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const d = matrixData[btn.dataset.scenario];
+        document.getElementById('m-label').textContent = d.label;
+        document.getElementById('m-15').textContent = d.p15;
+        document.getElementById('m-22').textContent = d.p22;
+        document.getElementById('m-30').textContent = d.p30;
+    });
+});
+
+// Calculator
+const ebitdaSlider = document.getElementById('ebitdaSlider');
+const multipleSlider = document.getElementById('multipleSlider');
+const debtSlider = document.getElementById('debtSlider');
+function updateCalc() {
+    const ebitda = parseFloat(ebitdaSlider.value);
+    const multiple = parseFloat(multipleSlider.value);
+    const debt = parseFloat(debtSlider.value);
+    const shares = 103;
+    const price = ((ebitda * multiple / 1000) - debt) * 1000 / shares;
+    const upside = ((price - 267) / 267 * 100).toFixed(1);
+    document.getElementById('ebitdaVal').textContent = ebitda;
+    document.getElementById('multipleVal').textContent = multiple.toFixed(1) + 'x';
+    document.getElementById('debtVal').textContent = debt.toFixed(2);
+    document.getElementById('calcPrice').textContent = '$' + price.toFixed(0);
+    document.getElementById('calcUpside').textContent = '현주가 대비 ' + (upside >= 0 ? '+' : '') + upside + '%';
+    document.getElementById('calcUpside').style.color = upside >= 0 ? '#4caf50' : '#f44336';
+}
+ebitdaSlider.addEventListener('input', updateCalc);
+multipleSlider.addEventListener('input', updateCalc);
+debtSlider.addEventListener('input', updateCalc);
+
+Chart.defaults.color = '#888';
+Chart.defaults.borderColor = '#1a1a1a';
+Chart.defaults.font.size = 11;
+
+new Chart(document.getElementById('chartRevEbitda'), {
+    type:'bar', data:{ labels:['2022','2023','2024','2025','2026E'], datasets:[
+        { label:'Revenue', data:[708,1171,1735,2507,3300], backgroundColor:'rgba(77,184,255,0.3)', borderColor:'#4db8ff', borderWidth:1 },
+        { label:'EBITDA', data:[294,559,498,1122,1625], backgroundColor:'rgba(76,175,80,0.3)', borderColor:'#4caf50', borderWidth:1 }
+    ]}, options:{ responsive:true, maintainAspectRatio:false, scales:{ y:{ grid:{color:'#1a1a1a'} } } }
+});
+
+new Chart(document.getElementById('chartMargins'), {
+    type:'line', data:{ labels:['2022','2023','2024','2025','Q1\'26'], datasets:[
+        { label:'GPM', data:[43.4,42.6,39.8,37.2,30.6], borderColor:'#4db8ff', tension:0.3, fill:false },
+        { label:'OPM', data:[22.2,30.5,14.5,30.7,22.5], borderColor:'#ff9800', tension:0.3, fill:false }
+    ]}, options:{ responsive:true, maintainAspectRatio:false, scales:{ y:{ grid:{color:'#1a1a1a'}, ticks:{callback:v=>v+'%'} } } }
+});
+
+new Chart(document.getElementById('chartQuarterly'), {
+    type:'bar', data:{ labels:['Q1\'25','Q2\'25','Q3\'25','Q4\'25','Q1\'26'], datasets:[
+        { label:'Revenue', data:[502,676,667,662,831], backgroundColor:'rgba(77,184,255,0.4)', borderColor:'#4db8ff', borderWidth:1 },
+        { label:'EBITDA (est)', data:[250,290,285,280,326], backgroundColor:'rgba(76,175,80,0.4)', borderColor:'#4caf50', borderWidth:1 }
+    ]}, options:{ responsive:true, maintainAspectRatio:false, scales:{ y:{grid:{color:'#1a1a1a'}} } }
+});
+
+new Chart(document.getElementById('chartModules'), {
+    type:'line', data:{ labels:['Q1\'25','Q2\'25','Q3\'25','Q4\'25','Q1\'26','Q2E','Q3E','Q4E'], datasets:[{
+        label:'모듈 생산량', data:[138,210,230,250,270,265,265,250],
+        borderColor:'#4db8ff', backgroundColor:'rgba(77,184,255,0.1)', tension:0.3, fill:true, pointRadius:4
+    }]}, options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{ y:{grid:{color:'#1a1a1a'}} } }
+});
+
+new Chart(document.getElementById('chartMix'), {
+    type:'doughnut', data:{ labels:['Aerospace Products','Aviation Leasing','FTAI Power (2027+)'],
+        datasets:[{ data:[65,35,0], backgroundColor:['#4db8ff','#666','#9c27b0'], borderWidth:0 }]
+    }, options:{ responsive:true, maintainAspectRatio:false, cutout:'60%', plugins:{ legend:{position:'bottom'} } }
+});
+
+new Chart(document.getElementById('chartBand'), {
+    type:'scatter', data:{ datasets:[{
+        label:'EV/EBITDA', data:[
+            {x:2022.12,y:6.8},{x:2023.12,y:9.3},{x:2024.06,y:13.4},{x:2025.01,y:13.8},
+            {x:2025.02,y:8.7},{x:2025.10,y:13.5},{x:2026.02,y:22.3},{x:2026.04,y:14.7},{x:2026.05,y:18.5}
+        ], backgroundColor:'#4db8ff', pointRadius:6, pointHoverRadius:9
+    }]}, options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
+        scales:{ x:{title:{display:true,text:'시점'},grid:{color:'#1a1a1a'}}, y:{title:{display:true,text:'EV/EBITDA'},grid:{color:'#1a1a1a'},min:5,max:25} } }
+});
+
+new Chart(document.getElementById('chartAnalysts'), {
+    type:'bar', data:{ labels:['JMP','Barclays','Morgan Stanley','Citi','Goldman','TD Cowen','Top'],
+        datasets:[{ label:'TP', data:[180,293,320,340,350,360,400],
+            backgroundColor:ctx=>{ const v=ctx.raw; return v>=340?'rgba(76,175,80,0.5)':v>=250?'rgba(77,184,255,0.4)':'rgba(255,152,0,0.4)'; },
+            borderColor:ctx=>{ const v=ctx.raw; return v>=340?'#4caf50':v>=250?'#4db8ff':'#ff9800'; }, borderWidth:1
+        }]
+    }, options:{ indexAxis:'y', responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
+        scales:{ x:{grid:{color:'#1a1a1a'},ticks:{callback:v=>'$'+v}}, y:{grid:{display:false}} } }
+});
+
+new Chart(document.getElementById('chartWave'), {
+    type:'line', data:{ labels:['2020','2022','2023','2024.06','2025.01(MW전)','2025.01(MW후)','2025.10','2026.02','2026.04','현재'],
+        datasets:[{ label:'주가', data:[3.15,16,45,102,143,74,172,323,203,267],
+            borderColor:'#4db8ff', backgroundColor:'rgba(77,184,255,0.05)', tension:0.2, fill:true, pointRadius:5,
+            pointBackgroundColor:['#666','#666','#666','#666','#666','#f44336','#666','#4caf50','#f44336','#ffb800']
+        }]
+    }, options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
+        scales:{ y:{grid:{color:'#1a1a1a'},ticks:{callback:v=>'$'+v}}, x:{grid:{color:'#1a1a1a'}} } }
+});
+</script>
+</body>
+</html>
